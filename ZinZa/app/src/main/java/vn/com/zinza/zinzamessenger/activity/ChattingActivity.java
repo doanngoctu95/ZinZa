@@ -3,10 +3,12 @@ package vn.com.zinza.zinzamessenger.activity;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -18,10 +20,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -59,6 +64,8 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
     private Button mBtnOpenCamera;
     private Button mBtnOpenGallery;
     private Button mBtnOpenAttach;
+    private Button mBtnText;
+    private ImageView mBtnOption;
 
     private String mIdRecipient;
     private String mIdSender;
@@ -153,6 +160,8 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
         mBtnOpenCamera.setOnClickListener(this);
         mBtnOpenGallery.setOnClickListener(this);
         mBtnOpenAttach.setOnClickListener(this);
+        mBtnOption.setOnClickListener(this);
+        mBtnText.setOnClickListener(this);
     }
 
     private void bindButterKnife() {
@@ -163,6 +172,7 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
         mMessageList = new ArrayList<>();
         contentRoot = findViewById(R.id.activity_chatting);
         mBtnBack = (ImageButton) findViewById(R.id.btnBackChatting);
+        mBtnOption= (ImageView) findViewById(R.id.optionChat);
 
         mImgAvatar = (ImageView) findViewById(R.id.imgAvatarFriend);
         mTxtName = (TextView) findViewById(R.id.txtnameFriendChatting);
@@ -172,6 +182,7 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
         mBtnOpenGallery = (Button) findViewById(R.id.btnOpenGallery);
         mBtnSendMessage = (Button) findViewById(R.id.btnSendMessage);
         mBtnOpenAttach = (Button) findViewById(R.id.btnOpenAttachment);
+        mBtnText= (Button) findViewById(R.id.btnTypeText);
 
         mListview = (RecyclerView) findViewById(R.id.list_content_message);
         mBtEmoji = (ImageView) findViewById(R.id.btnEmotion);
@@ -187,6 +198,12 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
     public void onClick(View v) {
         int id = v.getId();
         switch (id) {
+            case R.id.btnTypeText:
+                mEdtMessage.requestFocus();
+
+                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(mEdtMessage, InputMethodManager.SHOW_IMPLICIT);
+                break;
             case R.id.btnEmotion:
                 mEmojIcon.ShowEmojIcon();
                 break;
@@ -211,9 +228,37 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
             case R.id.btnOpenAttachment:
                 openFileAttach();
                 break;
-
+            case R.id.optionChat:
+                showPopupOption(v);
+                break;
+            default:
+                break;
         }
 
+    }
+
+    private void showPopupOption(View view){
+        PopupMenu popup = new PopupMenu(this, view);
+        popup.getMenuInflater().inflate(R.menu.popup_option_chat,
+                popup.getMenu());
+        popup.show();
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.changeColor:
+//                        Utils.COLOR=true;
+                        Toast.makeText(getApplicationContext(),"Dang xay dung",Toast.LENGTH_SHORT).show();
+                        break;
+                    case R.id.option2:
+                        Toast.makeText(getApplicationContext(),"dang xay dung",Toast.LENGTH_SHORT).show();
+                        break;
+                    default:
+                        break;
+                }
+                return true;
+            }
+        });
     }
 
 

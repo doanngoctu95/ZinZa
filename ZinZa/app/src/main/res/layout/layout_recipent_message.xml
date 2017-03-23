@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginTop="5dp"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <me.himanshusoni.chatmessageview.ChatMessageView
         android:id="@+id/contentMessageChat"
@@ -16,6 +17,7 @@
         app:cmv_contentPadding="10dp"
         app:cmv_cornerRadius="3dp"
         app:cmv_showArrow="true"
+        android:layout_marginRight="10dp"
         android:layout_marginLeft="10dp">
     <hani.momanii.supernova_emoji_library.Helper.EmojiconTextView
         android:id="@+id/text_view_recipient_message"

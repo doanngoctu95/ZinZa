@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.Uri;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -215,6 +216,16 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
                         startDownload();
                     }
                 });
+
+                if (Utils.COLOR){
+
+                    chatMessageView.setBackgroundColors(R.color.colorPrimaryDark,R.color.colorAccent);
+
+                }
+                else {
+
+                }
+
 //                holder.itemView.setOnClickListener(new View.OnClickListener() {
 //                    @Override
 //                    public void onClick(View v) {
