@@ -2,42 +2,35 @@ package vn.com.zinza.zinzamessenger.adapter;
 
 import android.Manifest;
 import android.app.Dialog;
-import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.net.Uri;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.squareup.picasso.Picasso;
 
-import java.io.File;
 import java.util.List;
 
 import hani.momanii.supernova_emoji_library.Helper.EmojiconTextView;
 import me.himanshusoni.chatmessageview.ChatMessageView;
 import vn.com.zinza.zinzamessenger.R;
 import vn.com.zinza.zinzamessenger.activity.VideoViewActivity;
-import vn.com.zinza.zinzamessenger.downloadfirebase.Download;
-import vn.com.zinza.zinzamessenger.downloadfirebase.DownloadService;
+import vn.com.zinza.zinzamessenger.firebasestorage.Download;
+import vn.com.zinza.zinzamessenger.firebasestorage.DownloadService;
 import vn.com.zinza.zinzamessenger.model.Message;
 import vn.com.zinza.zinzamessenger.utils.Helper;
 import vn.com.zinza.zinzamessenger.utils.Utils;

@@ -74,7 +74,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".activity.VideoViewActivity"/>
-        <service android:name=".downloadfirebase.DownloadService"/>
+        <service android:name=".firebasestorage.DownloadService"/>
     </application>
 
 </manifest>

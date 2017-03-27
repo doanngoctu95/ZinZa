@@ -1,9 +1,23 @@
 package vn.com.zinza.zinzamessenger.utils;
 
+import android.content.ContentResolver;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.MediaStore;
+import android.util.Log;
+import android.webkit.MimeTypeMap;
+
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -15,15 +29,17 @@ import java.util.Date;
 public class Helper {
     public static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 123;
 
-    public static void setUserOnline(DatabaseReference mReference){
+    public static void setUserOnline(DatabaseReference mReference) {
         mReference = FirebaseDatabase.getInstance().getReference();
         mReference.child("users").child(Utils.USER_ID).child("mStatus").setValue("on");//Set user online
     }
-    public static void setUserOffline(DatabaseReference mReference){
+
+    public static void setUserOffline(DatabaseReference mReference) {
         mReference = FirebaseDatabase.getInstance().getReference();
         mReference.child("users").child(Utils.USER_ID).child("mStatus").setValue("off");//Set user offline
         mReference.child("users").child(Utils.USER_ID).child("mToken").setValue("");//Set user offline
     }
+
     public static String convertTime(String time) {
         SimpleDateFormat output = new SimpleDateFormat("hh:mm");
         SimpleDateFormat formatter = new SimpleDateFormat(Utils.FORMAT_TIME);
@@ -36,19 +52,89 @@ public class Helper {
         return time;
 
     }
-    public static String getUrlDownload(String url){
-        String mURl = url.substring(url.lastIndexOf("apis.com")+8);
-        return mURl.substring(0,mURl.lastIndexOf("---"));
-    }
-    public static String getURLImage(String url){
-        return url.substring(0,url.lastIndexOf("---"));
-    }
-    public static String getName(String url){
-        return url.substring(url.lastIndexOf("---")+3);
+
+    public static String getUrlDownload(String url) {
+        String mURl = url.substring(url.lastIndexOf("apis.com") + 8);
+        return mURl.substring(0, mURl.lastIndexOf("---"));
     }
 
-    public static void createDirectory(){
+    public static String getURLImage(String url) {
+        return url.substring(0, url.lastIndexOf("---"));
+    }
+
+    public static String getName(String url) {
+        return url.substring(url.lastIndexOf("---") + 3);
+    }
+
+    public static void createDirectory() {
         File root = new File(Utils.ROOT_FOLDER);
         root.mkdir();
+    }
+
+    public static String getTypeFromUri(Context context, Uri uri) {
+        ContentResolver cR = context.getContentResolver();
+        MimeTypeMap mime = MimeTypeMap.getSingleton();
+        String type = mime.getExtensionFromMimeType(cR.getType(uri));
+        return type;
+    }
+
+    public static boolean splitFile(String source, String dest, int nuberFile, String typeFile) throws FileNotFoundException, IOException {
+        File sourceFile = new File(source);
+        if (sourceFile.exists() && sourceFile.isFile()) {
+            long sizeFile = sourceFile.length();
+            long sizeSplitFile = (sizeFile / nuberFile);
+            InputStream is = new FileInputStream(sourceFile);
+            byte[] arr = new byte[1024];
+            for (int i = 1; i <= nuberFile; i++) {
+                int j = 0;
+                long a = 0;
+                OutputStream os = new FileOutputStream(dest+ i + "." + typeFile);
+                System.out.println("file cắt được " + i + "." + typeFile);
+                while ((j = is.read(arr)) != -1) {
+                    os.write(arr, 0, j);
+                    a += j;
+                    if (a >= sizeSplitFile) {
+                        break;
+                    }
+                }
+                Log.e("Cut file", "Success");
+                os.flush();
+                os.close();
+            }
+            is.close();
+            return true;
+        } else {
+            System.out.println("file không tồn tại");
+            return false;
+        }
+    }
+
+    //    public static String getRealPathFromURI(Context context, Uri contentUri) {
+//        Cursor cursor = null;
+//        try {
+//            String[] proj = { MediaStore.Images.Media.DATA };
+//            cursor = context.getContentResolver().query(contentUri,  proj, null, null, null);
+//            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+//            cursor.moveToFirst();
+//            return cursor.getString(column_index);
+//        } finally {
+//            if (cursor != null) {
+//                cursor.close();
+//            }
+//        }
+//    }
+    public static String getRealPathFromURI(Context context, Uri contentUri) {
+        Cursor cursor = null;
+        try {
+            String[] proj = {MediaStore.Images.Media.DATA};
+            cursor = context.getContentResolver().query(contentUri, proj, null, null, null);
+            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            cursor.moveToFirst();
+            return cursor.getString(column_index);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
     }
 }

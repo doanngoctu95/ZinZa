@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
@@ -44,6 +45,10 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,9 +57,11 @@ import hani.momanii.supernova_emoji_library.Actions.EmojIconActions;
 import hani.momanii.supernova_emoji_library.Helper.EmojiconEditText;
 import vn.com.zinza.zinzamessenger.R;
 import vn.com.zinza.zinzamessenger.adapter.AdapterMessageChat;
+import vn.com.zinza.zinzamessenger.firebasestorage.Upload;
 import vn.com.zinza.zinzamessenger.model.Message;
 import vn.com.zinza.zinzamessenger.model.User;
 import vn.com.zinza.zinzamessenger.utils.Helper;
+import vn.com.zinza.zinzamessenger.utils.RealPathUtils;
 import vn.com.zinza.zinzamessenger.utils.Utils;
 
 public class ChattingActivity extends AppCompatActivity implements View.OnClickListener {
@@ -172,7 +179,7 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
         mMessageList = new ArrayList<>();
         contentRoot = findViewById(R.id.activity_chatting);
         mBtnBack = (ImageButton) findViewById(R.id.btnBackChatting);
-        mBtnOption= (ImageView) findViewById(R.id.optionChat);
+        mBtnOption = (ImageView) findViewById(R.id.optionChat);
 
         mImgAvatar = (ImageView) findViewById(R.id.imgAvatarFriend);
         mTxtName = (TextView) findViewById(R.id.txtnameFriendChatting);
@@ -182,7 +189,7 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
         mBtnOpenGallery = (Button) findViewById(R.id.btnOpenGallery);
         mBtnSendMessage = (Button) findViewById(R.id.btnSendMessage);
         mBtnOpenAttach = (Button) findViewById(R.id.btnOpenAttachment);
-        mBtnText= (Button) findViewById(R.id.btnTypeText);
+        mBtnText = (Button) findViewById(R.id.btnTypeText);
 
         mListview = (RecyclerView) findViewById(R.id.list_content_message);
         mBtEmoji = (ImageView) findViewById(R.id.btnEmotion);
@@ -201,7 +208,7 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
             case R.id.btnTypeText:
                 mEdtMessage.requestFocus();
 
-                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.showSoftInput(mEdtMessage, InputMethodManager.SHOW_IMPLICIT);
                 break;
             case R.id.btnEmotion:
@@ -237,7 +244,7 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
 
     }
 
-    private void showPopupOption(View view){
+    private void showPopupOption(View view) {
         PopupMenu popup = new PopupMenu(this, view);
         popup.getMenuInflater().inflate(R.menu.popup_option_chat,
                 popup.getMenu());
@@ -248,10 +255,10 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
                 switch (item.getItemId()) {
                     case R.id.changeColor:
 //                        Utils.COLOR=true;
-                        Toast.makeText(getApplicationContext(),"Dang xay dung",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Dang xay dung", Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.option2:
-                        Toast.makeText(getApplicationContext(),"dang xay dung",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "dang xay dung", Toast.LENGTH_SHORT).show();
                         break;
                     default:
                         break;
@@ -426,9 +433,9 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
             uploadData("Send images", data, "images", Utils.IMAGE);
         } else if (requestCode == RESULT_OPEN_ATTACH && resultCode == RESULT_OK) {
             if (checkDataVideo(getNameData(data.getData()))) {
-                uploadData("Send file", data, "files", Utils.VIDEO);
+                uploadFileMutlti("Send file", data, "files", Utils.VIDEO, this.keyConversation);
             } else {
-                uploadData("Send file", data, "files", Utils.FILE);
+                uploadFileMutlti("Send file", data, "files", Utils.FILE, this.keyConversation);
             }
         }
     }
@@ -472,6 +479,75 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
                 mProgressDialog.setMessage(title + " " + ((int) progress) + "%...");
             }
         });
+    }
+
+    private void uploadFileMutlti(final String title, Intent data, String folder, final String type, String keyConversation) {
+        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setTitle(title);
+        mProgressDialog.show();
+        mProgressDialog.setCancelable(false);
+        final Uri uri = data.getData();
+        Utils.NAME_FILE = getNameData(uri);
+        String realPath = RealPathUtils.getPathFromURI(this, uri);
+        Log.e("Real Path", realPath);
+        String typeOfFile = Helper.getTypeFromUri(ChattingActivity.this, uri);
+        try {
+            if (Helper.splitFile(realPath, Utils.ROOT_FOLDER + "/", 5, typeOfFile)) {
+                startUploadThread(typeOfFile, keyConversation, folder, Utils.NAME_FILE);
+                Log.e("Cut File", "Success");
+                mProgressDialog.dismiss();
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+//        FirebaseStorage.getInstance().getReference().child("Nie8OQaokQe6DgmYodc9349JjZ83-ZHM4VIz1eDOcPT3slHASfZsqfPT2/files/2017-03-27-17-33-25--1320442741/1.jpg").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+//            @Override
+//            public void onSuccess(Uri uri) {
+//                sendMessageAttach(uri, type);
+//                Log.e("Uri", uri.toString());
+//            }
+//        });
+    }
+
+    private void startUploadThread(final String type, String keyConversation, String folderStorage, String fileName) {
+        File f1 = new File(Utils.ROOT_FOLDER + "/1" + type);
+        File f2 = new File(Utils.ROOT_FOLDER + "/2." + type);
+        File f3 = new File(Utils.ROOT_FOLDER + "/3." + type);
+        File f4 = new File(Utils.ROOT_FOLDER + "/4." + type);
+        File f5 = new File(Utils.ROOT_FOLDER + "/5." + type);
+        Upload task1 = new Upload(mStorageReference, fileName, keyConversation, folderStorage, "1." + type);
+        Upload task2 = new Upload(mStorageReference, fileName, keyConversation, folderStorage, "2." + type);
+        Upload task3 = new Upload(mStorageReference, fileName, keyConversation, folderStorage, "3." + type);
+        Upload task4 = new Upload(mStorageReference, fileName, keyConversation, folderStorage, "4." + type);
+        Upload task5 = new Upload(mStorageReference, fileName, keyConversation, folderStorage, "5." + type);
+        Thread t1 = new Thread(task1);
+        Thread t2 = new Thread(task2);
+        Thread t3 = new Thread(task3);
+        Thread t4 = new Thread(task4);
+        Thread t5 = new Thread(task5);
+        t1.start();
+        t2.start();
+        t3.start();
+        t4.start();
+        t5.start();
+        try {
+            t1.join();
+            t2.join();
+            t3.join();
+            t4.join();
+            t5.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+//        while (t1.isAlive() == false && !t2.isAlive() == false && !t3.isAlive() == false && !t4.isAlive() == false && t5.isAlive() ==false){
+//
+//        }
+//        Log.e("Done", "Done DKM");
+
+
+
+
     }
 
     // get name of file upload
