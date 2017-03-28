@@ -1,4 +1,4 @@
-package vn.com.zinza.zinzamessenger.downloadfirebase;
+package vn.com.zinza.zinzamessenger.firebasestorage;
 
 import android.os.Parcel;
 import android.os.Parcelable;

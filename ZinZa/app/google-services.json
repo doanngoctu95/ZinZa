@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "844272390671-af5rnvnlvnp40g04172dqt4hu94egvs8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "chotot.prect.aptech.zinzamessenger",
+            "certificate_hash": "1dc80ad3e99550e6bf0894bf474396e5d6a5be56"
+          }
+        },
+        {
           "client_id": "844272390671-ncf735p1677i1cka8ln20vaf31rt6uo6.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -27,6 +35,58 @@
           "client_type": 1,
           "android_info": {
             "package_name": "chotot.prect.aptech.zinzamessenger",
+            "certificate_hash": "33c4b0accef27056d27b9130f2d21ac3ebc3535c"
+          }
+        },
+        {
+          "client_id": "844272390671-dtsg2rp4k07iua3a7di8mgvtqdet8mht.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFS83_B7Qv1IcnAMskVJq0eqwwkwfiqjg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "844272390671-dtsg2rp4k07iua3a7di8mgvtqdet8mht.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:844272390671:android:36b9388523beefed",
+        "android_client_info": {
+          "package_name": "zinza.com.vn.testupload"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "844272390671-oqncj9s78pjldu97bmc560tr15umbism.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "zinza.com.vn.testupload",
+            "certificate_hash": "1dc80ad3e99550e6bf0894bf474396e5d6a5be56"
+          }
+        },
+        {
+          "client_id": "844272390671-3bjij1ci64buche92qdagmh6kp85h0h0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "zinza.com.vn.testupload",
             "certificate_hash": "33c4b0accef27056d27b9130f2d21ac3ebc3535c"
           }
         },

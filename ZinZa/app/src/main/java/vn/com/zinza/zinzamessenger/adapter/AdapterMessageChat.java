@@ -4,13 +4,11 @@ import android.Manifest;
 import android.app.Dialog;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
-import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
@@ -24,12 +22,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -37,7 +33,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -49,9 +44,9 @@ import me.himanshusoni.chatmessageview.ChatMessageView;
 import vn.com.zinza.zinzamessenger.R;
 import vn.com.zinza.zinzamessenger.activity.ChattingActivity;
 import vn.com.zinza.zinzamessenger.activity.VideoViewActivity;
-import vn.com.zinza.zinzamessenger.downloadfirebase.Download;
-import vn.com.zinza.zinzamessenger.downloadfirebase.DownloadService;
 import vn.com.zinza.zinzamessenger.downloadfirebase.DownloadThread;
+import vn.com.zinza.zinzamessenger.firebasestorage.Download;
+import vn.com.zinza.zinzamessenger.firebasestorage.DownloadService;
 import vn.com.zinza.zinzamessenger.model.Message;
 import vn.com.zinza.zinzamessenger.utils.Helper;
 import vn.com.zinza.zinzamessenger.utils.Utils;
@@ -229,6 +224,39 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
                         });
                     }
                 });
+//                chatMessageView1.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        PopupMenu popup = new PopupMenu(mContext, view);
+//                        popup.getMenuInflater().inflate(R.menu.popup_menu_video,
+//                                popup.getMenu());
+//                        popup.show();
+//                        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+//                            @Override
+//                            public boolean onMenuItemClick(MenuItem item) {
+//                                switch (item.getItemId()) {
+//                                    case R.id.openVideo:
+//                                        String urlToStream = Helper.getURLImage(mList.get(position).getmContent());
+//                                        Intent myIntent = new Intent(mContext,
+//                                                VideoViewActivity.class);
+//                                        myIntent.putExtra(Utils.URL_STREAMING, urlToStream);
+//                                        mContext.startActivity(myIntent);
+//                                        break;
+//                                    case R.id.downloadVideo:
+//                                        String urlToDownload = Helper.getUrlDownload(mList.get(position).getmContent());
+//                                        Utils.NAME_FILE = Helper.getName(mList.get(position).getmContent());
+//                                        Utils.FIREBASE_END_URL = urlToDownload;
+//                                        Utils.showToast("Video đã bắt đầu được tải về", mContext);
+//                                        startDownload();
+//                                        break;
+//                                    default:
+//                                        break;
+//                                }
+//                                return true;
+//                            }
+//                        });
+//                    }
+//                });
                 break;
             case RECIPENT_FILE:
                 ViewHolderRecipientFile viewHolderRecipientFile = (ViewHolderRecipientFile) holder;
@@ -247,21 +275,6 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
                         new DownLoadTask().execute(Utils.URL_DOWNLOAD);
                     }
                 });
-
-                if (Utils.COLOR) {
-
-                    chatMessageView.setBackgroundColors(R.color.colorPrimaryDark, R.color.colorAccent);
-
-                } else {
-
-                }
-
-//                holder.itemView.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//
-//                    }
-//                });
                 break;
 
         }
@@ -826,7 +839,6 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
             return false;
         }
     }
-
 //    private void requestPermission(){
 //
 //        ActivityCompat.requestPermissions(mContext,new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},PERMISSION_REQUEST_CODE);
