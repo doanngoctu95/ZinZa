@@ -40,6 +40,19 @@ public class Helper {
         String mURl = url.substring(url.lastIndexOf("apis.com")+8);
         return mURl.substring(0,mURl.lastIndexOf("---"));
     }
+
+    public static String getUrlStorageDownload(String url){
+        return url.substring(0,url.lastIndexOf("---"));
+    }
+
+    public static String getUrlFileDownload(String url){
+        String mURl = url.substring(url.lastIndexOf("apis.com")+8);
+        return mURl;
+    }
+    public static String getNameFile(String url){
+        String mURl = url.substring(url.lastIndexOf("---")+3);
+        return mURl;
+    }
     public static String getURLImage(String url){
         return url.substring(0,url.lastIndexOf("---"));
     }
@@ -50,5 +63,17 @@ public class Helper {
     public static void createDirectory(){
         File root = new File(Utils.ROOT_FOLDER);
         root.mkdir();
+    }
+    public static String checkType(String url){
+        if (url.contains(".mp4")){
+            return ".mp4";
+        }
+        else if (url.contains(".jpg")){
+            return ".jpg";
+        }
+        else if (url.contains(".mp3")){
+            return ".mp3";
+        }
+        return null;
     }
 }

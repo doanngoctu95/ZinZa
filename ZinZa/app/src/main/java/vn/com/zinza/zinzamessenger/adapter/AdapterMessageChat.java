@@ -2,6 +2,8 @@ package vn.com.zinza.zinzamessenger.adapter;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.app.NotificationManager;
+import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -10,6 +12,9 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.AsyncTask;
+import android.support.annotation.NonNull;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.RecyclerView;
@@ -27,17 +32,26 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.nio.channels.FileChannel;
 import java.util.List;
 
 import hani.momanii.supernova_emoji_library.Helper.EmojiconTextView;
 import me.himanshusoni.chatmessageview.ChatMessageView;
 import vn.com.zinza.zinzamessenger.R;
+import vn.com.zinza.zinzamessenger.activity.ChattingActivity;
 import vn.com.zinza.zinzamessenger.activity.VideoViewActivity;
 import vn.com.zinza.zinzamessenger.downloadfirebase.Download;
 import vn.com.zinza.zinzamessenger.downloadfirebase.DownloadService;
+import vn.com.zinza.zinzamessenger.downloadfirebase.DownloadThread;
 import vn.com.zinza.zinzamessenger.model.Message;
 import vn.com.zinza.zinzamessenger.utils.Helper;
 import vn.com.zinza.zinzamessenger.utils.Utils;
@@ -65,11 +79,25 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
     private Context mContext;
     private List<Message> mList;
     private int mLayout;
+    private StorageReference mStorageReference;
+
+    private ProgressDialog mProgressDialog;
+    private NotificationCompat.Builder notificationBuilder;
+    private NotificationManager notificationManager;
 
     public AdapterMessageChat(Context mContext, List<Message> mList) {
         this.mContext = mContext;
         this.mList = mList;
         registerReceiver();
+        mStorageReference = FirebaseStorage.getInstance().getReference();
+        notificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        notificationBuilder = new NotificationCompat.Builder(mContext)
+                .setSmallIcon(R.drawable.ic_action_download)
+                .setContentTitle("Download")
+                .setContentText("Downloading File")
+                .setAutoCancel(true);
+        notificationManager.notify(0, notificationBuilder.build());
     }
 
     public void addMessage(Message message) {
@@ -111,8 +139,8 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
                 viewHolder = new ViewHolderRecipientFile(viewRecipientFile);
                 break;
             case RECIPENT_VIDEO:
-                View viewRecipientVideo= inflater.inflate(R.layout.layout_recipient_video,parent,false);
-                viewHolder= new ViewHolderRecipientVideoFile(viewRecipientVideo);
+                View viewRecipientVideo = inflater.inflate(R.layout.layout_recipient_video, parent, false);
+                viewHolder = new ViewHolderRecipientVideoFile(viewRecipientVideo);
                 break;
             default:
                 View viewSenderDefault = inflater.inflate(R.layout.layout_sender_message, parent, false);
@@ -167,7 +195,7 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
             case RECIPENT_VIDEO:
                 ViewHolderRecipientVideoFile viewHolderRecipientVideoFile = (ViewHolderRecipientVideoFile) holder;
                 configureFileVideoRecipient(viewHolderRecipientVideoFile, position);
-                ChatMessageView chatMessageView1= viewHolderRecipientVideoFile.getChatView();
+                ChatMessageView chatMessageView1 = viewHolderRecipientVideoFile.getChatView();
                 chatMessageView1.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -209,20 +237,22 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
                 chatMessageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        String urlToDownload = Helper.getUrlDownload(mList.get(position).getmContent());
-                        Utils.NAME_FILE = Helper.getName(mList.get(position).getmContent());
-                        Utils.FIREBASE_END_URL = urlToDownload;
-                        Utils.showToast("File đã bắt đầu được tải về", mContext);
-                        startDownload();
+//                        String urlToDownload = Helper.getUrlDownload(mList.get(position).getmContent());
+//                        Utils.NAME_FILE = Helper.getName(mList.get(position).getmContent());
+//                        Utils.FIREBASE_END_URL = urlToDownload;
+//                        Utils.showToast("File đã bắt đầu được tải về", mContext);
+//                        startDownload();
+                       Utils.URL_DOWNLOAD = mList.get(position).getmContent();
+
+                        new DownLoadTask().execute(Utils.URL_DOWNLOAD);
                     }
                 });
 
-                if (Utils.COLOR){
+                if (Utils.COLOR) {
 
-                    chatMessageView.setBackgroundColors(R.color.colorPrimaryDark,R.color.colorAccent);
+                    chatMessageView.setBackgroundColors(R.color.colorPrimaryDark, R.color.colorAccent);
 
-                }
-                else {
+                } else {
 
                 }
 
@@ -235,6 +265,229 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
                 break;
 
         }
+    }
+
+    private void sendNotification(Download download) {
+
+        sendIntent(download);
+//        notificationBuilder.setProgress(100,download.getProgress(),false);
+        notificationBuilder.setContentText("Downloading file ");
+        notificationManager.notify(0, notificationBuilder.build());
+    }
+
+    private class DownLoadTask extends AsyncTask<String, Void, String> {
+
+        private Exception exception;
+
+        protected void onPreExecute() {
+            Download download = new Download();
+            sendNotification(download);
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            // do above Server call here
+
+            download(params[0]);
+
+            return "some message";
+        }
+
+        @Override
+        protected void onPostExecute(String message) {
+            //process message
+//            Merge();
+//            long end = System.currentTimeMillis();   // start láº¥y thá»�i gian theo millisecond
+            System.out.println(" merge done");
+        }
+    }
+
+    private void download(final String urlDow) {
+        final long start = System.currentTimeMillis();
+        final String urlDown= Helper.getUrlStorageDownload(urlDow);
+        String url1=urlDown+"/1"+Helper.checkType(urlDown);
+        final String url2 =urlDown+"/2"+Helper.checkType(urlDown);
+        final String url3=urlDown+"/3"+Helper.checkType(urlDown);
+        final String url4=urlDown+"/4"+Helper.checkType(urlDown);
+        final String url5=urlDown+"/5"+Helper.checkType(urlDown);
+
+        mStorageReference.child(url1).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                Log.e("Uri", uri.toString());
+                Utils.URL_PART_1 = uri.toString();
+                mStorageReference.child(url2).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        Log.e("Uri", uri.toString());
+                        Utils.URL_PART_2 = uri.toString();
+                        mStorageReference.child(url3).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                Log.e("Uri", uri.toString());
+                                Utils.URL_PART_3 = uri.toString();
+                                mStorageReference.child(url4).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                    @Override
+                                    public void onSuccess(Uri uri) {
+                                        Log.e("Uri", uri.toString());
+                                        Utils.URL_PART_4 = uri.toString();
+                                        mStorageReference.child(url5).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                            @Override
+                                            public void onSuccess(Uri uri) {
+                                                Log.e("Uri", uri.toString());
+                                                Utils.URL_PART_5 = uri.toString();
+                                                DownloadThread d1 = new DownloadThread(Helper.getUrlFileDownload(Utils.URL_PART_1), Utils.ROOT_FOLDER + "/1");
+                                                DownloadThread d2 = new DownloadThread(Helper.getUrlFileDownload(Utils.URL_PART_2), Utils.ROOT_FOLDER + "/2");
+                                                DownloadThread d3 = new DownloadThread(Helper.getUrlFileDownload(Utils.URL_PART_3), Utils.ROOT_FOLDER + "/3");
+                                                DownloadThread d4 = new DownloadThread(Helper.getUrlFileDownload(Utils.URL_PART_4), Utils.ROOT_FOLDER + "/4");
+                                                DownloadThread d5 = new DownloadThread(Helper.getUrlFileDownload(Utils.URL_PART_5), Utils.ROOT_FOLDER + "/5");
+
+                                                Thread t1 = new Thread(d1);
+                                                Thread t2 = new Thread(d2);
+                                                Thread t3 = new Thread(d3);
+                                                Thread t4 = new Thread(d4);
+                                                Thread t5 = new Thread(d5);
+
+                                                t1.start();
+                                                t2.start();
+                                                t3.start();
+                                                t4.start();
+                                                t5.start();
+
+                                                while ((d1.done + d2.done + d3.done + d4.done + d5.done) < 5) {
+                                                    try {
+                                                        Thread.sleep(100);
+                                                    } catch (InterruptedException e1) {
+                                                        e1.printStackTrace();
+                                                    }
+                                                }
+                                                String type= Helper.checkType(urlDown);
+                                                String name= Helper.getNameFile(urlDow);
+                                                Merge(name,type);
+                                                long end = System.currentTimeMillis();
+                                                System.out.println("Time Millis: " + (end - start) + " merge done");
+                                                onDownloadComplete();
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e("fail", e.getMessage());
+            }
+        });
+
+        Log.e("uri RDA",Utils.URL_PART_1+Utils.URL_PART_2+Utils.URL_PART_3+Utils.URL_PART_4+Utils.URL_PART_5);
+
+
+
+
+
+
+
+
+
+
+//        String url1 = "/v0/b/zinza-4acc9.appspot.com/o/yaWteb938JOG7rJ3g4EpGIuwNCn2-zKfKfezloxgCdlKm7XmExCEzTup2%2Ffiles%2FMOV_0124.mp4?alt=media&token=a7ec5fa5-5ae2-4cd1-bf33-9a951defaa9b";
+//        String url2 = "/v0/b/zinza-4acc9.appspot.com/o/yaWteb938JOG7rJ3g4EpGIuwNCn2-zKfKfezloxgCdlKm7XmExCEzTup2%2Ffiles%2FMOV_0124.mp4?alt=media&token=a7ec5fa5-5ae2-4cd1-bf33-9a951defaa9b";
+//        String url3 = "/v0/b/zinza-4acc9.appspot.com/o/yaWteb938JOG7rJ3g4EpGIuwNCn2-zKfKfezloxgCdlKm7XmExCEzTup2%2Ffiles%2FMOV_0124.mp4?alt=media&token=a7ec5fa5-5ae2-4cd1-bf33-9a951defaa9b";
+//        String url4 = "/v0/b/zinza-4acc9.appspot.com/o/yaWteb938JOG7rJ3g4EpGIuwNCn2-zKfKfezloxgCdlKm7XmExCEzTup2%2Ffiles%2FMOV_0124.mp4?alt=media&token=a7ec5fa5-5ae2-4cd1-bf33-9a951defaa9b";
+//        String url5 = "/v0/b/zinza-4acc9.appspot.com/o/yaWteb938JOG7rJ3g4EpGIuwNCn2-zKfKfezloxgCdlKm7XmExCEzTup2%2Ffiles%2FMOV_0124.mp4?alt=media&token=a7ec5fa5-5ae2-4cd1-bf33-9a951defaa9b";
+//
+//
+
+    }
+
+    public static void Merge(String nameFile,String type) {
+        File file1 = new File(Utils.ROOT_FOLDER + "/1");
+        File file2 = new File(Utils.ROOT_FOLDER + "/2");
+        File file3 = new File(Utils.ROOT_FOLDER + "/3");
+        File file4 = new File(Utils.ROOT_FOLDER + "/4");
+        File file5 = new File(Utils.ROOT_FOLDER + "/5");
+        File oFile = new File(Utils.ROOT_FOLDER + "/"+nameFile+type);
+
+
+        try {
+            FileInputStream is1 = new FileInputStream(file1);
+            FileInputStream is2 = new FileInputStream(file2);
+            FileInputStream is3 = new FileInputStream(file3);
+            FileInputStream is4 = new FileInputStream(file4);
+            FileInputStream is5 = new FileInputStream(file5);
+
+            FileOutputStream fos = new FileOutputStream(oFile);
+
+            FileChannel f1 = is1.getChannel();
+            FileChannel f2 = is2.getChannel();
+            FileChannel f3 = is3.getChannel();
+            FileChannel f4 = is4.getChannel();
+            FileChannel f5 = is5.getChannel();
+            FileChannel f6 = fos.getChannel();
+
+            f6.transferFrom(f1, 0, f1.size());
+            f6.transferFrom(f2, f1.size(), f2.size());
+            f6.transferFrom(f3, f1.size() + f2.size(), f3.size());
+            f6.transferFrom(f4, f1.size() + f2.size() + f3.size(), f4.size());
+            f6.transferFrom(f5, f1.size() + f2.size() + f3.size() + f4.size(), f5.size());
+
+            f1.close();
+            f2.close();
+            f3.close();
+            f4.close();
+            f5.close();
+            f6.close();
+
+            fos.close();
+            is1.close();
+            is2.close();
+            is3.close();
+            is4.close();
+            is5.close();
+
+            file1.delete();
+            file2.delete();
+            file3.delete();
+            file4.delete();
+            file5.delete();
+
+
+        } catch (Exception e) {
+
+        }
+    }
+
+
+    private void sendIntent(Download download) {
+
+        Intent intent = new Intent(ChattingActivity.MESSAGE_PROGRESS);
+        intent.putExtra("download", download);
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
+    }
+
+    private void onDownloadComplete() {
+
+        Download download = new Download();
+        download.setProgress(100);
+        sendIntent(download);
+
+        notificationManager.cancel(0);
+        notificationBuilder.setProgress(0, 0, false);
+        notificationBuilder.setContentText("File Downloaded");
+        notificationManager.notify(0, notificationBuilder.build());
+
+    }
+
+    private void showProgress(String title, String message) {
+        mProgressDialog = new ProgressDialog(mContext);
+        mProgressDialog.setTitle(title);
+        mProgressDialog.setMessage(message);
+        mProgressDialog.setCancelable(false);
+        mProgressDialog.show();
     }
 
     @Override
@@ -253,10 +506,9 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
             return RECIPENT_TEXT;
         } else if (status == RECIPENT_IMAGE && type.equals(Utils.IMAGE)) {
             return RECIPENT_IMAGE;
-        }else if (status == RECIPENT_VIDEO && type.equals(Utils.VIDEO)) {
+        } else if (status == RECIPENT_VIDEO && type.equals(Utils.VIDEO)) {
             return RECIPENT_VIDEO;
-        }
-        else {
+        } else {
             return RECIPENT_FILE;
         }
     }
@@ -438,7 +690,7 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
         public ViewHolderSenderVideoFile(View itemView) {
             super(itemView);
             this.tvNameVideo = (TextView) itemView.findViewById(R.id.tvNameFileVideo);
-            this.tvTime= (TextView) itemView.findViewById(R.id.text_view_time_sender);
+            this.tvTime = (TextView) itemView.findViewById(R.id.text_view_time_sender);
         }
 
         public ImageView getImgThumble() {
@@ -463,7 +715,7 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
         public ViewHolderRecipientVideoFile(View itemView) {
             super(itemView);
             this.tvNameVideo = (TextView) itemView.findViewById(R.id.tvNameFileVideo);
-            this.tvTime= (TextView) itemView.findViewById(R.id.text_view_time_recipent);
+            this.tvTime = (TextView) itemView.findViewById(R.id.text_view_time_recipent);
             view = (ChatMessageView) itemView.findViewById(R.id.contentMessageChat);
         }
 
@@ -478,6 +730,7 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
         public TextView getTvTime() {
             return tvTime;
         }
+
         public ChatMessageView getChatView() {
             return view;
         }

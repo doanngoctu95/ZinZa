@@ -57,7 +57,10 @@ public class DownloadService extends IntentService {
 
         FirebaseService retrofitInterface = retrofit.create(FirebaseService.class);
 
+
         Call<ResponseBody> request = retrofitInterface.downloadAttachment(Utils.FIREBASE_END_URL);
+
+
         try {
 
             downloadFile(request.execute().body());

@@ -60,6 +60,20 @@ public class Utils {
     // Color
     public static boolean COLOR=false;
 
+    public static String URL_PATH_1="";
+    public static String URL_PATH_2="";
+    public static String URL_PATH_3="";
+    public static String URL_PATH_4="";
+    public static String URL_PATH_5="";
+
+    public static String URL_PART_1="";
+    public static String URL_PART_2="";
+    public static String URL_PART_3="";
+    public static String URL_PART_4="";
+    public static String URL_PART_5="";
+
+    public static String URL_DOWNLOAD="";
+
 
 
     public static AlertDialog buildAlertDialog(String title, String message, boolean isCancelable, Context context) {

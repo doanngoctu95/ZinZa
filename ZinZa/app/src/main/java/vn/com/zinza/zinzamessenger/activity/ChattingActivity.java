@@ -227,6 +227,13 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
                 break;
             case R.id.btnOpenAttachment:
                 openFileAttach();
+                mStorageReference.child("DKjNq5SEwEcQgrnCkSVuDFuIGF22-ePabOkREmHfx3R0dNjxjI2VHzAy1/files/60.bin").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        Log.e("Uri",uri.toString());
+
+                    }
+                });
                 break;
             case R.id.optionChat:
                 showPopupOption(v);
@@ -499,13 +506,7 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
         mStorageReference = FirebaseStorage.getInstance().getReference();
     }
 
-    private void showProgress(String title, String message) {
-        mProgressDialog = new ProgressDialog(this);
-        mProgressDialog.setTitle(title);
-        mProgressDialog.setMessage(message);
-        mProgressDialog.setCancelable(false);
-        mProgressDialog.show();
-    }
+
 
     private void showAlert() {
         AlertDialog alertDialog = new AlertDialog.Builder(ChattingActivity.this).create();
