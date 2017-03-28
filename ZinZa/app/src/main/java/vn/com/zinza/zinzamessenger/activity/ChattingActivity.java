@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -40,6 +41,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
@@ -59,6 +61,7 @@ import vn.com.zinza.zinzamessenger.R;
 import vn.com.zinza.zinzamessenger.adapter.AdapterMessageChat;
 import vn.com.zinza.zinzamessenger.firebasestorage.Upload;
 import vn.com.zinza.zinzamessenger.model.Message;
+import vn.com.zinza.zinzamessenger.model.ResultData;
 import vn.com.zinza.zinzamessenger.model.User;
 import vn.com.zinza.zinzamessenger.utils.Helper;
 import vn.com.zinza.zinzamessenger.utils.RealPathUtils;
@@ -103,6 +106,8 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
     public static final String MESSAGE_PROGRESS = "message_progress";
     public static final int RESULT_OPEN_ATTACH = 3;
     public static final int REQUEST_STORAGE = 0x3;
+
+    String urlPath = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -427,15 +432,22 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+//        mProgressDialog = new ProgressDialog(this);
+//        mProgressDialog.setTitle("Send");
+//        mProgressDialog.show();
+//        mProgressDialog.setCancelable(false);
         if (requestCode == REQUEST_CAMERA && resultCode == RESULT_OK) {
             uploadData("Send images", data, "images", Utils.IMAGE);
         } else if ((requestCode == REQUEST_GALLERY && resultCode == RESULT_OK)) {
             uploadData("Send images", data, "images", Utils.IMAGE);
         } else if (requestCode == RESULT_OPEN_ATTACH && resultCode == RESULT_OK) {
             if (checkDataVideo(getNameData(data.getData()))) {
-                uploadFileMutlti("Send file", data, "files", Utils.VIDEO, this.keyConversation);
+//                    uploadFileMutlti("Sending....", data, "files", Utils.VIDEO, this.keyConversation);
+                ResultData mData = new ResultData(data,keyConversation,Utils.VIDEO);
+                new ProcessTask().execute(mData);
             } else {
-                uploadFileMutlti("Send file", data, "files", Utils.FILE, this.keyConversation);
+                ResultData mData = new ResultData(data,keyConversation,Utils.FILE);
+                new ProcessTask().execute(mData);
             }
         }
     }
@@ -481,46 +493,39 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
         });
     }
 
-    private void uploadFileMutlti(final String title, Intent data, String folder, final String type, String keyConversation) {
-        mProgressDialog = new ProgressDialog(this);
-        mProgressDialog.setTitle(title);
-        mProgressDialog.show();
-        mProgressDialog.setCancelable(false);
+    private void uploadFileMutlti(String title, Intent data, String folder, final String type, String keyConversation) {
+
         final Uri uri = data.getData();
         Utils.NAME_FILE = getNameData(uri);
         String realPath = RealPathUtils.getPathFromURI(this, uri);
         Log.e("Real Path", realPath);
         String typeOfFile = Helper.getTypeFromUri(ChattingActivity.this, uri);
         try {
+
             if (Helper.splitFile(realPath, Utils.ROOT_FOLDER + "/", 5, typeOfFile)) {
-                startUploadThread(typeOfFile, keyConversation, folder, Utils.NAME_FILE);
+                startUploadThread(typeOfFile, keyConversation, folder, Utils.NAME_FILE, type);
                 Log.e("Cut File", "Success");
                 mProgressDialog.dismiss();
-
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-//        FirebaseStorage.getInstance().getReference().child("Nie8OQaokQe6DgmYodc9349JjZ83-ZHM4VIz1eDOcPT3slHASfZsqfPT2/files/2017-03-27-17-33-25--1320442741/1.jpg").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-//            @Override
-//            public void onSuccess(Uri uri) {
-//                sendMessageAttach(uri, type);
-//                Log.e("Uri", uri.toString());
-//            }
-//        });
+
+
     }
 
-    private void startUploadThread(final String type, String keyConversation, String folderStorage, String fileName) {
-        File f1 = new File(Utils.ROOT_FOLDER + "/1" + type);
-        File f2 = new File(Utils.ROOT_FOLDER + "/2." + type);
-        File f3 = new File(Utils.ROOT_FOLDER + "/3." + type);
-        File f4 = new File(Utils.ROOT_FOLDER + "/4." + type);
-        File f5 = new File(Utils.ROOT_FOLDER + "/5." + type);
-        Upload task1 = new Upload(mStorageReference, fileName, keyConversation, folderStorage, "1." + type);
-        Upload task2 = new Upload(mStorageReference, fileName, keyConversation, folderStorage, "2." + type);
-        Upload task3 = new Upload(mStorageReference, fileName, keyConversation, folderStorage, "3." + type);
-        Upload task4 = new Upload(mStorageReference, fileName, keyConversation, folderStorage, "4." + type);
-        Upload task5 = new Upload(mStorageReference, fileName, keyConversation, folderStorage, "5." + type);
+    private void startUploadThread(final String typeOfFile, String keyConversation, String folderStorage, String fileName, String type) {
+
+        File f1 = new File(Utils.ROOT_FOLDER + "/1" + typeOfFile);
+        File f2 = new File(Utils.ROOT_FOLDER + "/2." + typeOfFile);
+        File f3 = new File(Utils.ROOT_FOLDER + "/3." + typeOfFile);
+        File f4 = new File(Utils.ROOT_FOLDER + "/4." + typeOfFile);
+        File f5 = new File(Utils.ROOT_FOLDER + "/5." + typeOfFile);
+        Upload task1 = new Upload(mStorageReference, fileName, keyConversation, folderStorage, "1." + typeOfFile);
+        Upload task2 = new Upload(mStorageReference, fileName, keyConversation, folderStorage, "2." + typeOfFile);
+        Upload task3 = new Upload(mStorageReference, fileName, keyConversation, folderStorage, "3." + typeOfFile);
+        Upload task4 = new Upload(mStorageReference, fileName, keyConversation, folderStorage, "4." + typeOfFile);
+        Upload task5 = new Upload(mStorageReference, fileName, keyConversation, folderStorage, "5." + typeOfFile);
         Thread t1 = new Thread(task1);
         Thread t2 = new Thread(task2);
         Thread t3 = new Thread(task3);
@@ -540,16 +545,41 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-//        while (t1.isAlive() == false && !t2.isAlive() == false && !t3.isAlive() == false && !t4.isAlive() == false && t5.isAlive() ==false){
-//
-//        }
-//        Log.e("Done", "Done DKM");
-
-
-
+        if (task1.done && task2.done && task3.done && task4.done && task5.done) {
+            if(f1.exists()){
+                f1.delete();
+            }
+            if(f2.exists()){
+                f2.delete();
+            }
+            if(f3.exists()){
+                f3.delete();
+            }
+            if(f4.exists()){
+                f4.delete();
+            }
+            if(f5.exists()){
+                f5.delete();
+            }
+            String link = keyConversation + "/" + folderStorage + "/" + fileName;
+            sendMessageAttach(Uri.parse(link), type);
+            Log.e("FULL-PART",Utils.URL_PART);
+        }
 
     }
+    private class ProcessTask extends AsyncTask<ResultData,Integer,ResultData>{
+        @Override
+        protected ResultData doInBackground(ResultData... params) {
+            uploadFileMutlti("Sending..",params[0].getmData(),"files",params[0].getmType(),params[0].getmKey());
+            return null;
+        }
 
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            showProgress("Sendding","Please wait");
+        }
+    }
     // get name of file upload
     private String getNameData(Uri uri) {
         String nameFile = "";

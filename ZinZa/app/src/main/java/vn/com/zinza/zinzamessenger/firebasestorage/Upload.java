@@ -12,6 +12,8 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 
+import vn.com.zinza.zinzamessenger.utils.Utils;
+
 /**
  * Created by ASUS on 3/27/2017.
  */
@@ -42,11 +44,15 @@ public class Upload implements Runnable {
     private void uploadFile(){
         File file = new File(ROOT+"/"+namePart);
         Uri uri = Uri.fromFile(file);
-        String folder = nameFile.substring(0,nameFile.indexOf("."));
-        storageReference.child(nameConver).child(nameFolderStorage).child(folder).child(namePart).putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+//        String folder = nameFile.substring(0,nameFile.indexOf("."));
+
+        storageReference.child(nameConver).child(nameFolderStorage).child(nameFile).child(namePart).putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
-            public void onSuccess(com.google.firebase.storage.UploadTask.TaskSnapshot taskSnapshot) {
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 Log.e("Upload","Success"+namePart);
+                String pos = namePart.substring(0,namePart.indexOf("."));
+                Utils.URL_PART += "Part"+pos+":"+taskSnapshot.getDownloadUrl().toString();
+
                 done = true;
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -58,6 +64,6 @@ public class Upload implements Runnable {
         while (!done){
 
         }
-        Log.e("Check","Done");
+
     }
 }

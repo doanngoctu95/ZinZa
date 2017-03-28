@@ -59,7 +59,8 @@ public class Utils {
     public static String URL_STREAMING="URL_STREAMING";
     // Color
     public static boolean COLOR=false;
-
+    //Upload multi
+    public static String URL_PART = "";
 
 
     public static AlertDialog buildAlertDialog(String title, String message, boolean isCancelable, Context context) {

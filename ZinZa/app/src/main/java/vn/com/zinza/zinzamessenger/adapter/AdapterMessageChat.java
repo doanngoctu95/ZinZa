@@ -161,68 +161,52 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
                 ViewHolderRecipientVideoFile viewHolderRecipientVideoFile = (ViewHolderRecipientVideoFile) holder;
                 configureFileVideoRecipient(viewHolderRecipientVideoFile, position);
                 ChatMessageView chatMessageView1= viewHolderRecipientVideoFile.getChatView();
-                chatMessageView1.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        PopupMenu popup = new PopupMenu(mContext, view);
-                        popup.getMenuInflater().inflate(R.menu.popup_menu_video,
-                                popup.getMenu());
-                        popup.show();
-                        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                            @Override
-                            public boolean onMenuItemClick(MenuItem item) {
-                                switch (item.getItemId()) {
-                                    case R.id.openVideo:
-                                        String urlToStream = Helper.getURLImage(mList.get(position).getmContent());
-                                        Intent myIntent = new Intent(mContext,
-                                                VideoViewActivity.class);
-                                        myIntent.putExtra(Utils.URL_STREAMING, urlToStream);
-                                        mContext.startActivity(myIntent);
-                                        break;
-                                    case R.id.downloadVideo:
-                                        String urlToDownload = Helper.getUrlDownload(mList.get(position).getmContent());
-                                        Utils.NAME_FILE = Helper.getName(mList.get(position).getmContent());
-                                        Utils.FIREBASE_END_URL = urlToDownload;
-                                        Utils.showToast("Video đã bắt đầu được tải về", mContext);
-                                        startDownload();
-                                        break;
-                                    default:
-                                        break;
-                                }
-                                return true;
-                            }
-                        });
-                    }
-                });
+//                chatMessageView1.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        PopupMenu popup = new PopupMenu(mContext, view);
+//                        popup.getMenuInflater().inflate(R.menu.popup_menu_video,
+//                                popup.getMenu());
+//                        popup.show();
+//                        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+//                            @Override
+//                            public boolean onMenuItemClick(MenuItem item) {
+//                                switch (item.getItemId()) {
+//                                    case R.id.openVideo:
+//                                        String urlToStream = Helper.getURLImage(mList.get(position).getmContent());
+//                                        Intent myIntent = new Intent(mContext,
+//                                                VideoViewActivity.class);
+//                                        myIntent.putExtra(Utils.URL_STREAMING, urlToStream);
+//                                        mContext.startActivity(myIntent);
+//                                        break;
+//                                    case R.id.downloadVideo:
+//                                        String urlToDownload = Helper.getUrlDownload(mList.get(position).getmContent());
+//                                        Utils.NAME_FILE = Helper.getName(mList.get(position).getmContent());
+//                                        Utils.FIREBASE_END_URL = urlToDownload;
+//                                        Utils.showToast("Video đã bắt đầu được tải về", mContext);
+//                                        startDownload();
+//                                        break;
+//                                    default:
+//                                        break;
+//                                }
+//                                return true;
+//                            }
+//                        });
+//                    }
+//                });
                 break;
             case RECIPENT_FILE:
                 ViewHolderRecipientFile viewHolderRecipientFile = (ViewHolderRecipientFile) holder;
                 configureFileRecipient(viewHolderRecipientFile, position);
                 ChatMessageView chatMessageView = viewHolderRecipientFile.getChatView();
-                chatMessageView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        String urlToDownload = Helper.getUrlDownload(mList.get(position).getmContent());
-                        Utils.NAME_FILE = Helper.getName(mList.get(position).getmContent());
-                        Utils.FIREBASE_END_URL = urlToDownload;
-                        Utils.showToast("File đã bắt đầu được tải về", mContext);
-                        startDownload();
-                    }
-                });
-
-                if (Utils.COLOR){
-
-                    chatMessageView.setBackgroundColors(R.color.colorPrimaryDark,R.color.colorAccent);
-
-                }
-                else {
-
-                }
-
-//                holder.itemView.setOnClickListener(new View.OnClickListener() {
+//                chatMessageView.setOnClickListener(new View.OnClickListener() {
 //                    @Override
 //                    public void onClick(View v) {
-//
+//                        String urlToDownload = Helper.getUrlDownload(mList.get(position).getmContent());
+//                        Utils.NAME_FILE = Helper.getName(mList.get(position).getmContent());
+//                        Utils.FIREBASE_END_URL = urlToDownload;
+//                        Utils.showToast("File đã bắt đầu được tải về", mContext);
+//                        startDownload();
 //                    }
 //                });
                 break;
@@ -566,7 +550,6 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
             return false;
         }
     }
-
 //    private void requestPermission(){
 //
 //        ActivityCompat.requestPermissions(mContext,new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},PERMISSION_REQUEST_CODE);
