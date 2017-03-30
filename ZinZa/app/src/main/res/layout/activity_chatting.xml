@@ -32,7 +32,7 @@
             android:layout_height="46dp"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:src="@drawable/a7" />
+            android:src="@drawable/ic_avatar_df" />
 
         <TextView
             android:id="@+id/txtnameFriendChatting"

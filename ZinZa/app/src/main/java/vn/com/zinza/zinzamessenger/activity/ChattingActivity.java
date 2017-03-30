@@ -301,7 +301,6 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void sendMessageAttach(String uriContent, String type,int status) {
-
         String mId = mMsRef.push().getKey();
         Message mMessage = new Message(mId, Utils.USER_ID, mIdRecipient, type, uriContent, Utils.createAt());
         mMessage.setRecipientOrSenderStatus(status);
@@ -437,10 +436,6 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-//        mProgressDialog = new ProgressDialog(this);
-//        mProgressDialog.setTitle("Send");
-//        mProgressDialog.show();
-//        mProgressDialog.setCancelable(false);
         if (requestCode == REQUEST_CAMERA && resultCode == RESULT_OK) {
             uploadData("Send images", data, "images", Utils.IMAGE);
         } else if ((requestCode == REQUEST_GALLERY && resultCode == RESULT_OK)) {
@@ -498,7 +493,7 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
         });
     }
 
-    private void uploadFileMutlti(String title, Intent data, String folder, final String type, String keyConversation,int status) {
+    private void uploadFileMutlti(Intent data, String folder, final String type, String keyConversation,int status) {
 
         final Uri uri = data.getData();
         Utils.NAME_FILE = getNameData(uri);
@@ -568,6 +563,7 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
 
             String link = keyConversation + "/" + folderStorage + "/" + fileName;
             sendMessageAttach(link+"---"+Utils.NAME_FILE+"+++"+Utils.URL_PART, type,status);
+            Utils.URL_PART = "";
 
 
 
@@ -578,14 +574,14 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
     private class ProcessTask extends AsyncTask<ResultData,Integer,ResultData>{
         @Override
         protected ResultData doInBackground(ResultData... params) {
-            uploadFileMutlti("Sending..",params[0].getmData(),"files",params[0].getmType(),params[0].getmKey(),params[0].getmStatus());
+            uploadFileMutlti(params[0].getmData(),"files",params[0].getmType(),params[0].getmKey(),params[0].getmStatus());
             return null;
         }
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            showProgress("Sendding","Please wait");
+            showProgress("Sending file","Please wait...");
         }
     }
     // get name of file upload
