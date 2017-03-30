@@ -9,9 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.AsyncTask;
-import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -28,11 +26,6 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
@@ -365,8 +358,6 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
         long end = System.currentTimeMillis();
         System.out.println("Time Millis: " + (end - start) + " merge done");
         onDownloadComplete();
-
-
     }
 
     public static void Merge(String nameFile, String type) {
@@ -504,7 +495,7 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     private void configureFileSender(ViewHolderSenderFile viewHolderSenderFile, final int position) {
         Message senderFireMessage = mList.get(position);
-        viewHolderSenderFile.getSenderFile().setText(Helper.getName(senderFireMessage.getmContent()));
+        viewHolderSenderFile.getSenderFile().setText(Helper.getNameFile(senderFireMessage.getmContent()));
         viewHolderSenderFile.getTime().setText(Helper.convertTime(senderFireMessage.getmTime()));
     }
 
@@ -537,10 +528,9 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
                 .into(viewHolderRecipientImage.getRecipientImage());
         viewHolderRecipientImage.getTime().setText(Helper.convertTime(senderFireMessage.getmTime()));
     }
-
     private void configureFileRecipient(ViewHolderRecipientFile viewHolderRecipientFile, final int position) {
         Message senderFireMessage = mList.get(position);
-        viewHolderRecipientFile.getRecipientFile().setText(Helper.getName(senderFireMessage.getmContent()));
+        viewHolderRecipientFile.getRecipientFile().setText(Helper.getNameFile(senderFireMessage.getmContent()));
         viewHolderRecipientFile.getTime().setText(Helper.convertTime(senderFireMessage.getmTime()));
     }
 

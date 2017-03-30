@@ -74,44 +74,44 @@ public class AdapterHistoryFile  extends ArrayAdapter<FileHistory> {
 //        viewHolder.img.setImageDrawable(getContext().getResources().getDrawable(arrFile.get(position).getImg()));
         viewHolder.tvDate.setText(arrFile.get(position).getDate());
         String typeFile= arrFile.get(position).getName();
-        if (typeFile.contains(".html")){
+        if (typeFile.toLowerCase().contains(".html")){
 //            viewHolder.img.setImageDrawable(R.drawable.);
         }
-        else if (typeFile.contains(".xls")){
+        else if (typeFile.toLowerCase().contains(".xls")||typeFile.contains(".xlsx")){
             viewHolder.img.setImageDrawable(getContext().getResources().getDrawable(R.drawable.exel));
         }
-        else if (typeFile.contains(".doc")){
+        else if (typeFile.toLowerCase().contains(".doc")||typeFile.contains(".docx")){
             viewHolder.img.setImageDrawable(getContext().getResources().getDrawable(R.drawable.doc));
         }
-        else if (typeFile.contains(".zip")||typeFile.contains(".rar")){
+        else if (typeFile.toLowerCase().contains(".zip")||typeFile.contains(".rar")){
             viewHolder.img.setImageDrawable(getContext().getResources().getDrawable(R.drawable.rar));
         }
-        else if (typeFile.contains(".ppt")){
+        else if (typeFile.toLowerCase().contains(".ppt")){
             viewHolder.img.setImageDrawable(getContext().getResources().getDrawable(R.drawable.ppt));
         }
-        else if (typeFile.contains(".pdf")){
+        else if (typeFile.toLowerCase().contains(".pdf")){
             viewHolder.img.setImageDrawable(getContext().getResources().getDrawable(R.drawable.pdf));
         }
-        else if (typeFile.contains(".mp3")){
+        else if (typeFile.toLowerCase().contains(".mp3")){
             viewHolder.img.setImageDrawable(getContext().getResources().getDrawable(R.drawable.mp3));
         }
-        else if (typeFile.contains(".mp4")){
+        else if (typeFile.toLowerCase().contains(".mp4")||typeFile.contains(".3gp")||typeFile.contains(".avi")||typeFile.contains(".flv")||typeFile.contains(".mpg4")){
             viewHolder.img.setImageDrawable(getContext().getResources().getDrawable(R.drawable.mp4));
         }
-        else if (typeFile.contains(".txt")){
+        else if (typeFile.toLowerCase().contains(".txt")){
             viewHolder.img.setImageDrawable(getContext().getResources().getDrawable(R.drawable.txt));
         }
-        else if (typeFile.contains(".jpg")||typeFile.contains(".png")){
+        else if (typeFile.toLowerCase().contains(".jpg")||typeFile.contains(".png")||typeFile.contains(".jpeg")){
             viewHolder.img.setImageDrawable(getContext().getResources().getDrawable(R.drawable.jpg));
         }
         else {
             // other file
-            viewHolder.img.setImageDrawable(getContext().getResources().getDrawable(R.drawable.jpg));
+            viewHolder.img.setImageDrawable(getContext().getResources().getDrawable(R.drawable.default_file));
         }
 
 
         viewHolder.tvName.setText(arrFile.get(position).getName()+"");
-        viewHolder.tvDate.setText("17/02/2017");
+        viewHolder.tvDate.setText(arrFile.get(position).getDate()+"");
         viewHolder.imgOption.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

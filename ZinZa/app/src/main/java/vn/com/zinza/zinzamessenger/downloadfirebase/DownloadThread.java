@@ -1,11 +1,5 @@
 package vn.com.zinza.zinzamessenger.downloadfirebase;
 
-import android.net.Uri;
-import android.util.Log;
-
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.squareup.okhttp.ResponseBody;
 
 import java.io.BufferedInputStream;
@@ -19,7 +13,6 @@ import java.net.URL;
 import retrofit.Call;
 import retrofit.Retrofit;
 import vn.com.zinza.zinzamessenger.service.FirebaseService;
-import vn.com.zinza.zinzamessenger.utils.Helper;
 import vn.com.zinza.zinzamessenger.utils.Utils;
 
 /**
@@ -45,11 +38,10 @@ public class DownloadThread implements Runnable {
     public DownloadThread(String url, String path) {
         this.urlTest = url;
         this.path = path;
-
-
-
     }
-        @Override
+
+
+    @Override
         public void run () {
             Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl(Utils.FIREBASE_DOWNLOAD)
@@ -59,7 +51,6 @@ public class DownloadThread implements Runnable {
 
 
             Call<ResponseBody> request = retrofitInterface.downloadAttachment(urlTest);//url
-
             while (isRunning) {
 
                 try {

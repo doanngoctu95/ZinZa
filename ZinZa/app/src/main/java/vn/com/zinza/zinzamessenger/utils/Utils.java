@@ -78,8 +78,6 @@ public class Utils {
     public static String URL_CONTENT = "";
 
 
-
-
     public static AlertDialog buildAlertDialog(String title, String message, boolean isCancelable, Context context) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);

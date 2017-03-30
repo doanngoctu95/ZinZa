@@ -52,6 +52,18 @@ public class Helper {
         return time;
 
     }
+
+    public static String convertDay(String time) {
+        SimpleDateFormat output = new SimpleDateFormat("dd/MM/yyyy");
+        SimpleDateFormat formatter = new SimpleDateFormat(Utils.FORMAT_TIME);
+        try {
+            Date parsed = formatter.parse(time);
+            return output.format(parsed);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return time;
+    }
     //Camera & galeery
     public static String getUrlDownload(String url) {
         return url.substring(url.lastIndexOf("apis.com") + 8);
@@ -73,6 +85,7 @@ public class Helper {
     public static String getFullPart(String url){
         String fullPart= url.substring(url.lastIndexOf("+++")+3);
         return fullPart;
+
     }
 
 
