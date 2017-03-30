@@ -724,8 +724,8 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
         String urlToDownload = Helper.getUrlDownload(url);
         String urlToShowImage = url;
         Utils.FIREBASE_END_URL = urlToDownload;
-        Picasso.with(mContext).load(urlToShowImage).placeholder(R.drawable.place_hoder).into(ivPreview);
-//        Glide.with(mContext).load(url).placeholder(R.drawable.place_hoder).into(ivPreview);
+//        Picasso.with(mContext).load(urlToShowImage).placeholder(R.drawable.place_hoder).into(ivPreview);
+        Glide.with(mContext).load(url).placeholder(R.drawable.place_hoder).into(ivPreview);
         btnDownload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
