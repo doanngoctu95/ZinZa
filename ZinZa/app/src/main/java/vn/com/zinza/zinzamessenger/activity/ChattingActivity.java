@@ -60,6 +60,7 @@ import butterknife.ButterKnife;
 import hani.momanii.supernova_emoji_library.Actions.EmojIconActions;
 import hani.momanii.supernova_emoji_library.Helper.EmojiconEditText;
 import vn.com.zinza.zinzamessenger.R;
+import vn.com.zinza.zinzamessenger.adapter.AdapterMessage;
 import vn.com.zinza.zinzamessenger.adapter.AdapterMessageChat;
 import vn.com.zinza.zinzamessenger.firebasestorage.Upload;
 import vn.com.zinza.zinzamessenger.model.Message;
@@ -294,14 +295,16 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
     private void sendMessage(String message) {
         String mId = mMsRef.push().getKey();
         Message mMessage = new Message(mId, Utils.USER_ID, mIdRecipient, Utils.TEXT, message, Utils.createAt());
+        mMessage.setRecipientOrSenderStatus(AdapterMessageChat.SENDER_TEXT);
         mAdapterMessageChat.addMessage(mMessage);
         mMsRef.child(keyConversation).child(mId).setValue(mMessage);
     }
 
-    private void sendMessageAttach(String uriContent, String type) {
+    private void sendMessageAttach(String uriContent, String type,int status) {
 
         String mId = mMsRef.push().getKey();
         Message mMessage = new Message(mId, Utils.USER_ID, mIdRecipient, type, uriContent, Utils.createAt());
+        mMessage.setRecipientOrSenderStatus(status);
         mAdapterMessageChat.addMessage(mMessage);
         mMsRef.child(keyConversation).child(mId).setValue(mMessage);
     }
@@ -445,10 +448,10 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
         } else if (requestCode == RESULT_OPEN_ATTACH && resultCode == RESULT_OK) {
             if (checkDataVideo(getNameData(data.getData()))) {
 //                    uploadFileMutlti("Sending....", data, "files", Utils.VIDEO, this.keyConversation);
-                ResultData mData = new ResultData(data,keyConversation,Utils.VIDEO);
+                ResultData mData = new ResultData(data,keyConversation,Utils.VIDEO,AdapterMessageChat.SENDER_VIDEO);
                 new ProcessTask().execute(mData);
             } else {
-                ResultData mData = new ResultData(data,keyConversation,Utils.FILE);
+                ResultData mData = new ResultData(data,keyConversation,Utils.FILE,AdapterMessageChat.SENDER_FILE);
                 new ProcessTask().execute(mData);
             }
         }
@@ -476,7 +479,7 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 mProgressDialog.dismiss();
                 Uri url = taskSnapshot.getDownloadUrl();
-                sendMessageAttach(url+"---"+Utils.NAME_FILE+"+++"+Utils.URL_PART, type);
+                sendMessageAttach(url.toString(), type,AdapterMessageChat.SENDER_IMAGE);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -495,7 +498,7 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
         });
     }
 
-    private void uploadFileMutlti(String title, Intent data, String folder, final String type, String keyConversation) {
+    private void uploadFileMutlti(String title, Intent data, String folder, final String type, String keyConversation,int status) {
 
         final Uri uri = data.getData();
         Utils.NAME_FILE = getNameData(uri);
@@ -505,7 +508,7 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
         try {
 
             if (Helper.splitFile(realPath, Utils.ROOT_FOLDER + "/", 5, typeOfFile)) {
-                startUploadThread(typeOfFile, keyConversation, folder, Utils.NAME_FILE, type);
+                startUploadThread(typeOfFile, keyConversation, folder, Utils.NAME_FILE, type,status);
                 Log.e("Cut File", "Success");
                 mProgressDialog.dismiss();
             }
@@ -516,7 +519,7 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
 
     }
 
-    private void startUploadThread(final String typeOfFile, String keyConversation, String folderStorage, String fileName, String type) {
+    private void startUploadThread(final String typeOfFile, String keyConversation, String folderStorage, String fileName, String type,int status) {
         File f1 = new File(Utils.ROOT_FOLDER + "/1" + typeOfFile);
         File f2 = new File(Utils.ROOT_FOLDER + "/2." + typeOfFile);
         File f3 = new File(Utils.ROOT_FOLDER + "/3." + typeOfFile);
@@ -564,7 +567,7 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
             }
 
             String link = keyConversation + "/" + folderStorage + "/" + fileName;
-            sendMessageAttach(link+"---"+Utils.NAME_FILE+"+++"+Utils.URL_PART, type);
+            sendMessageAttach(link+"---"+Utils.NAME_FILE+"+++"+Utils.URL_PART, type,status);
 
 
 
@@ -575,7 +578,7 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
     private class ProcessTask extends AsyncTask<ResultData,Integer,ResultData>{
         @Override
         protected ResultData doInBackground(ResultData... params) {
-            uploadFileMutlti("Sending..",params[0].getmData(),"files",params[0].getmType(),params[0].getmKey());
+            uploadFileMutlti("Sending..",params[0].getmData(),"files",params[0].getmType(),params[0].getmKey(),params[0].getmStatus());
             return null;
         }
 

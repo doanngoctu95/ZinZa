@@ -52,11 +52,11 @@ public class Helper {
         return time;
 
     }
-
+    //Camera & galeery
     public static String getUrlDownload(String url) {
-        String mURl = url.substring(url.lastIndexOf("apis.com") + 8);
-        return mURl.substring(0, mURl.lastIndexOf("---"));
+        return url.substring(url.lastIndexOf("apis.com") + 8);
     }
+    //Video & File
     public static String getUrlStorageDownload(String url){
         return url.substring(0,url.lastIndexOf("---"));
     }
@@ -66,12 +66,15 @@ public class Helper {
         return mURl;
     }
     public static String getNameFile(String url){
-        String mURl = url.substring(url.lastIndexOf("---")+3);
+        String mURl = url.substring(url.indexOf("---")+3,url.indexOf("+++"));
         return mURl;
     }
-    public static String getURLImage(String url) {
-        return url.substring(0, url.lastIndexOf("---"));
+
+    public static String getFullPart(String url){
+        String fullPart= url.substring(url.lastIndexOf("+++")+3);
+        return fullPart;
     }
+
 
     public static String getName(String url) {
         return url.substring(url.lastIndexOf("---") + 3,url.lastIndexOf("+++"));

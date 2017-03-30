@@ -29,14 +29,12 @@ import vn.com.zinza.zinzamessenger.utils.Utils;
 public class DownloadThread implements Runnable {
     public static int count = 0;
     public static long start;
+    public boolean isRunning = true;
     URL url;
     String path;
 
     public int done = 0;
     String urlTest;
-    private boolean isRunning = true;
-    private StorageReference mStorageReference;
-    private String uriDown;
 
     public DownloadThread(URL url, String path, String s, String e) {
         this.url = url;
@@ -47,56 +45,37 @@ public class DownloadThread implements Runnable {
     public DownloadThread(String url, String path) {
         this.urlTest = url;
         this.path = path;
-        mStorageReference = FirebaseStorage.getInstance().getReference();
 
 
 
     }
-
-
-
-
         @Override
         public void run () {
-//        System.out.println("Starting : " + path);
-//        try {
-//            File file = new File(path);
-//
-//            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-//            urlConnection.setRequestProperty("Range", "Bytes=" + s + "-" + e);
-//            urlConnection.connect();
-//
-//            System.out.println("Respnse Code: " + urlConnection.getResponseCode());
-//            System.out.println("Content-Length: " + urlConnection.getContentLength());
-//
-//            InputStream inputStream = urlConnection.getInputStream();
-//            OutputStream out;
-//            out = new FileOutputStream(file);
-//            int o;
-//            while ((o = inputStream.read()) != -1) {
-//                out.write(o);
-//            }
-//            inputStream.close();
-//            out.close();
-//        } catch (MalformedURLException mue) {
-//            mue.printStackTrace();
-//        } catch (IOException ioe) {
-//            ioe.printStackTrace();
-//        }
-//        count++;
-//        done++;
-//        System.out.println("Part download is done");
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl(Utils.FIREBASE_DOWNLOAD)
+                    .build();
 
-            mStorageReference.child(this.urlTest).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                @Override
-                public void onSuccess(Uri uri) {
-                    Log.e("Uri", uri.toString());
-//                    Utils.URL_PART += uri.toString();
+            FirebaseService retrofitInterface = retrofit.create(FirebaseService.class);
+
+
+            Call<ResponseBody> request = retrofitInterface.downloadAttachment(urlTest);//url
+
+            while (isRunning) {
+
+                try {
+
+                    downloadFile(request.execute().body());
+
+                } catch (IOException e) {
+
+                    e.printStackTrace();
+//            Toast.makeText(,e.getMessage(),Toast.LENGTH_SHORT).show();
+
                 }
-            });
+            }
         }
-
     private void downloadFile(ResponseBody body) throws IOException {
+
 
         int count;
         byte data[] = new byte[1024 * 4];
@@ -110,6 +89,7 @@ public class DownloadThread implements Runnable {
         long total = 0;
         long startTime = System.currentTimeMillis();
         int timeCount = 1;
+
         while ((count = bis.read(data)) != -1) {
 
             total += count;
@@ -126,6 +106,8 @@ public class DownloadThread implements Runnable {
             }
 
             output.write(data, 0, count);
+
+
         }
         isRunning = false;
         done++;
