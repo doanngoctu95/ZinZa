@@ -83,6 +83,7 @@ public class AdapterMessage extends BaseAdapter {
                 if (mListMessage.get(i).getmIdRecipient().equals(idFr)) {
                     mListMessage.remove(i);
                     mListMessage.add(message);
+
                 }
             }
         }
@@ -138,11 +139,6 @@ public class AdapterMessage extends BaseAdapter {
             idFriend = mSender_id;
         }
         mListMessageKeys.add(idFriend);
-//        if(IS_NEW_MESSAGE){
-//            imgNewMessage.setVisibility(View.VISIBLE);
-//        } else {
-//            imgNewMessage.setVisibility(View.GONE);
-//        }
         getUser(idFriend, avatarUser, nameUser,swipeLayout,position);
         contentMessage.setText(mListMessage.get(position).getmContent());
         timeMessage.setText(Helper.convertTime(mListMessage.get(position).getmTime()));
@@ -162,7 +158,7 @@ public class AdapterMessage extends BaseAdapter {
 
     }
     private void getUser(String idFriend, final ImageView avatar, final TextView txtname, final SwipeLayout swipeLayout, final int position) {
-        mUserReference = mDatabase.getInstance().getReference().child("users");
+        mUserReference = mDatabase.getInstance().getReference().child(Utils.TBL_USERS);
         mUserReference.orderByChild("mId").equalTo(idFriend).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {

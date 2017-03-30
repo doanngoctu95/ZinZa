@@ -5,13 +5,15 @@
               android:layout_height="match_parent">
 
     <de.hdodenhof.circleimageview.CircleImageView
+        android:layout_marginTop="10dp"
         android:layout_marginLeft="10dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginBottom="10dp"
+        android:src="@drawable/ic_avatar_df"
         android:layout_width="72dp"
         android:layout_height="72dp"
         android:id="@+id/imgFrendAvatar"
         app:civ_border_width="1dp"
-        app:civ_border_color="@color/black"/>
+        app:civ_border_color="@color/white"/>
 
     <ImageView
         android:layout_width="20dp"

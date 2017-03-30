@@ -109,7 +109,6 @@ public class MessageFriendActivity extends AppCompatActivity implements Navigati
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messenger_friend);
         initControl();
-
         setAuthInstace();
         showProgress("Loading...", "Please wait...");
         loadConversation();
@@ -130,6 +129,7 @@ public class MessageFriendActivity extends AppCompatActivity implements Navigati
         mToolbar = (Toolbar) findViewById(R.id.mainToolbar);
         mListMessage = (ListView) findViewById(R.id.lstListmessage);
         mNavigationView = (NavigationView) findViewById(R.id.navigation_view);
+        mNavigationView.setBackgroundResource(R.drawable.ic_background_header);
         View hView = mNavigationView.getHeaderView(0);
         mUsername = (TextView) hView.findViewById(R.id.txtUsername);
         mEmail = (TextView) hView.findViewById(R.id.txtEmail);
@@ -171,20 +171,6 @@ public class MessageFriendActivity extends AppCompatActivity implements Navigati
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_messenger, menu);
-        MenuItem item = menu.findItem(R.id.action_search);
-        SearchView searchView = (SearchView) item.getActionView();
-        searchView.setQueryHint("Search friend...");
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                return true;
-            }
-        });
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -201,7 +187,7 @@ public class MessageFriendActivity extends AppCompatActivity implements Navigati
     }
 
     private void getMessageFromConversation(final String keyConversation) {
-        DatabaseReference mConverRef = mDatabase.getInstance().getReference().child("tblChat").child(keyConversation);
+        DatabaseReference mConverRef = mDatabase.getInstance().getReference().child(Utils.TBL_CHATS).child(keyConversation);
         mConverRef.limitToLast(1).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -250,7 +236,7 @@ public class MessageFriendActivity extends AppCompatActivity implements Navigati
         mListMessageKeys = new ArrayList<>();
         mListConversationKeys = new ArrayList<>();
         mList = new ArrayList<>();
-        mRefMessage = mDatabase.getInstance().getReference().child("tblChat");
+        mRefMessage = mDatabase.getInstance().getReference().child(Utils.TBL_CHATS);
 
         mRefMessage.orderByKey().addChildEventListener(new ChildEventListener() {
             @Override
@@ -334,8 +320,12 @@ public class MessageFriendActivity extends AppCompatActivity implements Navigati
     private void shareApp() {
         Intent sendIntent = new Intent();
         sendIntent.setAction(Intent.ACTION_SEND);
-        sendIntent.putExtra(Intent.EXTRA_EMAIL, "This is my text to send.");
         sendIntent.setType("text/plain");
+        sendIntent.putExtra(Intent.EXTRA_SUBJECT, "Zinza Messenger");
+        String sAux = "\nLet me recommend you this application\n\n";
+        sAux = sAux + "http://zinza.com.vn \n\n";
+        sendIntent.putExtra(Intent.EXTRA_TEXT, sAux);
+        startActivity(Intent.createChooser(sendIntent, "choose one"));
         startActivity(sendIntent);
     }
 
@@ -387,7 +377,7 @@ public class MessageFriendActivity extends AppCompatActivity implements Navigati
         mListFriendSearch = new ArrayList<>();
         mListSearchFrKeys = new ArrayList<>();
         mReference = mDatabase.getInstance().getReference();
-        mReference.child("users").addChildEventListener(new ChildEventListener() {
+        mReference.child(Utils.TBL_USERS).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 if (dataSnapshot.exists()) {
@@ -398,7 +388,7 @@ public class MessageFriendActivity extends AppCompatActivity implements Navigati
                         if (user.getmUsername().toLowerCase().contains(username.toLowerCase())) {
                             final String key1 = Utils.USER_ID +"-"+ user.getmId();
                             final String key2 = user.getmId()+"-"+Utils.USER_ID;
-                            mReference.child("tblFriend").addValueEventListener(new ValueEventListener() {
+                            mReference.child(Utils.TBL_FRIENDS).addValueEventListener(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     if(!user.getmUsername().equals(Utils.USER_NAME)){
@@ -462,7 +452,7 @@ public class MessageFriendActivity extends AppCompatActivity implements Navigati
         mDlDetailFriend.setCancelable(true);
 
         mLstFriendSearch = (ListView) mDlDetailFriend.findViewById(R.id.lstFriendSearch);
-        mAdapterFriendSearch = new AdapterFriendSearch(this, R.layout.item_search_friend, list, mUser);
+        mAdapterFriendSearch = new AdapterFriendSearch(this, R.layout.item_search_friend, list, mUser,mDlDetailFriend);
         mLstFriendSearch.setAdapter(mAdapterFriendSearch);
 
     }
@@ -504,7 +494,7 @@ public class MessageFriendActivity extends AppCompatActivity implements Navigati
         final String photoUrl = Utils.AVATAR_URL = String.valueOf(mAuth.getCurrentUser().getPhotoUrl());
         mReference = mDatabase.getInstance().getReference();
         final String Uemail = mAuth.getCurrentUser().getEmail();
-        mReference.child("users").orderByChild("mEmail").equalTo(Uemail).addValueEventListener(new ValueEventListener() {
+        mReference.child(Utils.TBL_USERS).orderByChild("mEmail").equalTo(Uemail).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String Uname = "";
@@ -543,7 +533,7 @@ public class MessageFriendActivity extends AppCompatActivity implements Navigati
         } else {
             mReference = mDatabase.getInstance().getReference();
             final String Uemail = mAuth.getCurrentUser().getEmail();
-            mReference.child("users").orderByChild("mEmail").equalTo(Uemail).addValueEventListener(new ValueEventListener() {
+            mReference.child(Utils.TBL_USERS).orderByChild("mEmail").equalTo(Uemail).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     String Uname = "";

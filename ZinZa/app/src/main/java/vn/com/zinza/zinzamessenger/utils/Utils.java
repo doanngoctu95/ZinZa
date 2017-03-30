@@ -34,6 +34,12 @@ public class Utils {
     public static final String SIGN_IN_FAIL = "Google Sign In failed.";
     public static final String FB_NAME = "FB_NAME";
     public static final String FB_URL = "FB_URL";
+    //Table
+    public static final String TBL_USERS= "users";
+    public static final String TBL_FRIENDS= "tblFriend";
+    public static final String TBL_CHATS= "tblChat";
+
+
     //Current USER
     public static String USER_ID = "";
     public static String AVATAR_URL = "";

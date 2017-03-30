@@ -131,7 +131,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         mDialog.dismiss();
     }
     private void setDbReference(){
-        mReference = mDatabase.getInstance().getReference("users");
+        mReference = mDatabase.getInstance().getReference(Utils.TBL_USERS);
     }
     private void setAuthInstance(){
         mAuth = FirebaseAuth.getInstance();

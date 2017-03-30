@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import vn.com.zinza.zinzamessenger.R;
@@ -26,13 +27,34 @@ public class AdapterFriendOnline extends BaseAdapter {
     private Context mContext;
     private int mLayout;
     private List<User> mListUser;
+    private ArrayList<User> lists;
 
     public AdapterFriendOnline(Context mContext, int mLayout, List<User> mListUser) {
         this.mContext = mContext;
         this.mLayout = mLayout;
         this.mListUser = mListUser;
+        this.lists  = new ArrayList<User>();
+        this.lists.addAll(mListUser);
     }
-
+    public void filter(String query) {
+        if(query.length() == 0){
+            mListUser.addAll(lists);
+        }
+        else {
+            for (User user : lists) {
+                final String name = user.getmUsername();
+                if (name.contains(query) ) {
+                    mListUser.add(user);
+                }
+            }
+        }
+        notifyDataSetChanged();
+    }
+    public void setFilter(List<User> userModels) {
+        mListUser = new ArrayList<>();
+        mListUser.addAll(userModels);
+        notifyDataSetChanged();
+    }
     @Override
     public int getCount() {
         return mListUser.size();

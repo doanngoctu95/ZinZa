@@ -602,7 +602,7 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void setFirebaseInstance() {
-        mMsRef = mMsDatabase.getInstance().getReference().child("tblChat");
+        mMsRef = mMsDatabase.getInstance().getReference().child(Utils.TBL_CHATS);
         mMsRef.keepSynced(true);
     }
 

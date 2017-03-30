@@ -24,6 +24,6 @@
         android:scaleType="fitCenter"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_above="@+id/btnDownloadImage"/>
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>

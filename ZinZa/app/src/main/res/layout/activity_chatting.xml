@@ -18,6 +18,35 @@
         android:layout_alignParentTop="true"
         android:background="@color/fbcolor">
 
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/imgAvatarFriend"
+                android:layout_width="46dp"
+                android:layout_height="46dp"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/ic_avatar_df"
+                android:layout_weight="1" />
+
+            <TextView
+                android:layout_gravity="center_vertical"
+                android:id="@+id/txtnameFriendChatting"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@+id/imgAvatarFriend"
+                android:text="Văn Cường"
+                android:layout_marginLeft="10dp"
+                android:textColor="@color/white"
+                android:layout_weight="1" />
+        </LinearLayout>
+
         <ImageButton
             android:id="@+id/btnBackChatting"
             android:layout_width="wrap_content"
@@ -26,23 +55,6 @@
             android:layout_centerVertical="true"
             android:background="@drawable/ic_action_back" />
 
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/imgAvatarFriend"
-            android:layout_width="46dp"
-            android:layout_height="46dp"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:src="@drawable/ic_avatar_df" />
-
-        <TextView
-            android:id="@+id/txtnameFriendChatting"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_toRightOf="@+id/imgAvatarFriend"
-            android:text="Văn Cường"
-            android:layout_marginLeft="10dp"
-            android:textColor="@color/white" />
         <ImageView
             android:layout_width="46dp"
             android:layout_height="46dp"

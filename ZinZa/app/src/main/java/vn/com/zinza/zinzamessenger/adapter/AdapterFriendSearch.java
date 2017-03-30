@@ -1,6 +1,8 @@
 package vn.com.zinza.zinzamessenger.adapter;
 
+import android.app.Dialog;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,12 +47,15 @@ public class AdapterFriendSearch extends BaseAdapter {
     private FirebaseAuth mAuth;
     private FirebaseDatabase mDatabase;
 
-    public AdapterFriendSearch(Context mContext, int mLayout, List<User> mListUser, User mUser) {
+    private Dialog mDialog;
+
+    public AdapterFriendSearch(Context mContext, int mLayout, List<User> mListUser, User mUser,Dialog mDialog) {
         this.mContext = mContext;
         this.mLayout = mLayout;
         this.mListUser = mListUser;
         mAuth = FirebaseAuth.getInstance();
         this.mUser = mUser;
+        this.mDialog = mDialog;
     }
     public void refill(User user){
         mListUser.add(user);
@@ -112,6 +117,8 @@ public class AdapterFriendSearch extends BaseAdapter {
                 Notification mNotification = new Notification(title,body);
                 Data mData = new Data(Utils.USER_ID,currentToken,currentAvatarUrl, Utils.TYPE_ADD);
                 instanceRetrofit(mNotification,mData,tokenFr);
+                Utils.showToast("Đã gửi lời mời kết bạn thành công!!",mContext);
+                mDialog.dismiss();
             }
         });
         return convertView;
@@ -130,9 +137,9 @@ public class AdapterFriendSearch extends BaseAdapter {
             @Override
             public void onResponse(Response<ResultRequest> response, Retrofit retrofit) {
                 if(response.isSuccess()){
-                    Utils.showToast("Success",mContext);
+                    Log.e("Success","Send add friend success");
                 } else {
-                    Utils.showToast("Respone is null",mContext);
+                    Log.e("Success","Respone is null");
                 }
             }
 
