@@ -24,6 +24,7 @@
         app:cmv_backgroundColor="@color/senderColor"
         app:cmv_backgroundColorPressed="#FFBABABA"
         app:cmv_contentPadding="10dp"
+        android:layout_marginLeft="10dp"
         app:cmv_cornerRadius="3dp"
         app:cmv_showArrow="true"
 

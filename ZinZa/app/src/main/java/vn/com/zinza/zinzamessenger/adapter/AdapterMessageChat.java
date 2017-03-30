@@ -82,19 +82,11 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
         this.mList = mList;
         registerReceiver();
         mStorageReference = FirebaseStorage.getInstance().getReference();
-        notificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-
-//        notificationBuilder = new NotificationCompat.Builder(mContext)
-//                .setSmallIcon(R.drawable.ic_action_download)
-//                .setContentTitle("Download")
-//                .setContentText("Downloading File")
-//                .setAutoCancel(true);
-//        notificationManager.notify(0, notificationBuilder.build());
     }
 
     public void addMessage(Message message) {
         mList.add(message);
-        notifyItemInserted(getItemCount() - 1);
+        notifyItemInserted(getItemCount()-1);
     }
 
     @Override
@@ -191,39 +183,6 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
                 chatMessageView1.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        PopupMenu popup = new PopupMenu(mContext, view);
-                        popup.getMenuInflater().inflate(R.menu.popup_menu_video,
-                                popup.getMenu());
-                        popup.show();
-                        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                            @Override
-                            public boolean onMenuItemClick(MenuItem item) {
-                                switch (item.getItemId()) {
-                                    case R.id.openVideo:
-                                        String urlToStream = Helper.getURLImage(mList.get(position).getmContent());
-                                        Intent myIntent = new Intent(mContext,
-                                                VideoViewActivity.class);
-                                        myIntent.putExtra(Utils.URL_STREAMING, urlToStream);
-                                        mContext.startActivity(myIntent);
-                                        break;
-                                    case R.id.downloadVideo:
-                                        String urlToDownload = Helper.getUrlDownload(mList.get(position).getmContent());
-                                        Utils.NAME_FILE = Helper.getName(mList.get(position).getmContent());
-                                        Utils.FIREBASE_END_URL = urlToDownload;
-                                        Utils.showToast("Video đã bắt đầu được tải về", mContext);
-                                        startDownload();
-                                        break;
-                                    default:
-                                        break;
-                                }
-                                return true;
-                            }
-                        });
-                    }
-                });
-//                chatMessageView1.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
 //                        PopupMenu popup = new PopupMenu(mContext, view);
 //                        popup.getMenuInflater().inflate(R.menu.popup_menu_video,
 //                                popup.getMenu());
@@ -240,11 +199,12 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
 //                                        mContext.startActivity(myIntent);
 //                                        break;
 //                                    case R.id.downloadVideo:
-//                                        String urlToDownload = Helper.getUrlDownload(mList.get(position).getmContent());
-//                                        Utils.NAME_FILE = Helper.getName(mList.get(position).getmContent());
-//                                        Utils.FIREBASE_END_URL = urlToDownload;
-//                                        Utils.showToast("Video đã bắt đầu được tải về", mContext);
-//                                        startDownload();
+////                                        String urlToDownload = Helper.getUrlDownload(mList.get(position).getmContent());
+////                                        Utils.NAME_FILE = Helper.getName(mList.get(position).getmContent());
+////                                        Utils.FIREBASE_END_URL = urlToDownload;
+////                                        Utils.showToast("Video đã bắt đầu được tải về", mContext);
+////                                        startDownload();
+//
 //                                        break;
 //                                    default:
 //                                        break;
@@ -252,8 +212,10 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
 //                                return true;
 //                            }
 //                        });
-//                    }
-//                });
+                        Utils.URL_CONTENT = mList.get(position).getmContent();
+                        new DownLoadTask().execute(Utils.URL_CONTENT);
+                    }
+                });
                 break;
             case RECIPENT_FILE:
                 ViewHolderRecipientFile viewHolderRecipientFile = (ViewHolderRecipientFile) holder;
@@ -262,14 +224,7 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
                 chatMessageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-//                        String urlToDownload = Helper.getUrlDownload(mList.get(position).getmContent());
-//                        Utils.NAME_FILE = Helper.getName(mList.get(position).getmContent());
-//                        Utils.FIREBASE_END_URL = urlToDownload;
-//                        Utils.showToast("File đã bắt đầu được tải về", mContext);
-//                        startDownload();
                         Utils.URL_CONTENT = mList.get(position).getmContent();
-
-
                         new DownLoadTask().execute(Utils.URL_CONTENT);
                     }
                 });
@@ -282,7 +237,7 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
     private void sendNotification(Download download) {
 
         sendIntent(download);
-//        notificationBuilder.setProgress(100,download.getProgress(),false);
+        notificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationBuilder = new NotificationCompat.Builder(mContext)
                 .setSmallIcon(R.drawable.ic_action_download)
                 .setContentTitle("Download")
@@ -297,14 +252,14 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
         private Exception exception;
 
         protected void onPreExecute() {
-            Download download = new Download();
-            sendNotification(download);
+
         }
 
         @Override
         protected String doInBackground(String... params) {
             // do above Server call here
-
+            Download download = new Download();
+            sendNotification(download);
             download(params[0]);
 
             return "some message";
@@ -372,19 +327,11 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
         checkPart(p3);
         checkPart(p4);
         checkPart(p5);
-
-//        String url1 = "/v0/b/zinza-4acc9.appspot.com/o/ieLiVEQ8B8gEhfJAhd83ew6jFBJ3-gMBbAFOFiSZDanYxRKBbRpLLaZ82%2Ffiles%2FVID_20170308_180004.mp4%2F1.mp4?alt=media&token=e47e0caf-dab9-462f-8246-ba0b2f372892";
-//        String url2 = "/v0/b/zinza-4acc9.appspot.com/o/ieLiVEQ8B8gEhfJAhd83ew6jFBJ3-gMBbAFOFiSZDanYxRKBbRpLLaZ82%2Ffiles%2FVID_20170308_180004.mp4%2F2.mp4?alt=media&token=6492aa87-64c6-40f7-8d85-8ea403f834ff";
-//        String url3 = "/v0/b/zinza-4acc9.appspot.com/o/ieLiVEQ8B8gEhfJAhd83ew6jFBJ3-gMBbAFOFiSZDanYxRKBbRpLLaZ82%2Ffiles%2FVID_20170308_180004.mp4%2F3.mp4?alt=media&token=dff7de3d-b945-4d4d-8ee8-d56384e5f175";
-//        String url4 = "/v0/b/zinza-4acc9.appspot.com/o/ieLiVEQ8B8gEhfJAhd83ew6jFBJ3-gMBbAFOFiSZDanYxRKBbRpLLaZ82%2Ffiles%2FVID_20170308_180004.mp4%2F4.mp4?alt=media&token=8330acf6-e0fe-4659-af43-2b335686fb23";
-//        String url5 = "/v0/b/zinza-4acc9.appspot.com/o/ieLiVEQ8B8gEhfJAhd83ew6jFBJ3-gMBbAFOFiSZDanYxRKBbRpLLaZ82%2Ffiles%2FVID_20170308_180004.mp4%2F5.mp4?alt=media&token=6c364c0a-d91e-41f5-ba8f-581666ffa07a";
-
         DownloadThread d1 = new DownloadThread(Helper.getUrlFileDownload(Utils.URL_PART_1), Utils.ROOT_FOLDER + "/1");
         DownloadThread d2 = new DownloadThread(Helper.getUrlFileDownload(Utils.URL_PART_2), Utils.ROOT_FOLDER + "/2");
         DownloadThread d3 = new DownloadThread(Helper.getUrlFileDownload(Utils.URL_PART_3), Utils.ROOT_FOLDER + "/3");
         DownloadThread d4 = new DownloadThread(Helper.getUrlFileDownload(Utils.URL_PART_4), Utils.ROOT_FOLDER + "/4");
         DownloadThread d5 = new DownloadThread(Helper.getUrlFileDownload(Utils.URL_PART_5), Utils.ROOT_FOLDER + "/5");
-
         Thread t1 = new Thread(d1);
         Thread t2 = new Thread(d2);
         Thread t3 = new Thread(d3);
@@ -411,8 +358,6 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
         long end = System.currentTimeMillis();
         System.out.println("Time Millis: " + (end - start) + " merge done");
         onDownloadComplete();
-
-
     }
 
     public static void Merge(String nameFile, String type) {
@@ -515,10 +460,10 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
             return RECIPENT_TEXT;
         } else if (status == RECIPENT_IMAGE && type.equals(Utils.IMAGE)) {
             return RECIPENT_IMAGE;
-        } else if (status == RECIPENT_VIDEO && type.equals(Utils.VIDEO)) {
-            return RECIPENT_VIDEO;
-        } else {
+        } else if (status == RECIPENT_FILE && type.equals(Utils.FILE)) {
             return RECIPENT_FILE;
+        } else {
+            return RECIPENT_VIDEO;
         }
     }
 
@@ -541,7 +486,7 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
     private void configureImageSenderView(ViewHolderSenderImage viewHolderSenderImage, final int position) {
         Message senderFireMessage = mList.get(position);
         Glide.with(mContext)
-                .load(Helper.getURLImage(senderFireMessage.getmContent()))
+                .load(senderFireMessage.getmContent())
                 .placeholder(R.drawable.place_hoder)
                 .crossFade()
                 .into(viewHolderSenderImage.getSenderImage());
@@ -577,7 +522,7 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
     private void configureImageRecipientView(ViewHolderRecipientImage viewHolderRecipientImage, final int position) {
         Message senderFireMessage = mList.get(position);
         Glide.with(mContext)
-                .load(Helper.getURLImage(senderFireMessage.getmContent()))
+                .load(senderFireMessage.getmContent())
                 .placeholder(R.drawable.place_hoder)
                 .crossFade()
                 .into(viewHolderRecipientImage.getRecipientImage());
@@ -777,7 +722,7 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
         Button btnDownload = (Button) nagDialog.findViewById(R.id.btnDownloadImage);
         ImageView ivPreview = (ImageView) nagDialog.findViewById(R.id.imgDetail);
         String urlToDownload = Helper.getUrlDownload(url);
-        String urlToShowImage = Helper.getURLImage(url);
+        String urlToShowImage = url;
         Utils.FIREBASE_END_URL = urlToDownload;
         Picasso.with(mContext).load(urlToShowImage).placeholder(R.drawable.place_hoder).into(ivPreview);
 //        Glide.with(mContext).load(url).placeholder(R.drawable.place_hoder).into(ivPreview);

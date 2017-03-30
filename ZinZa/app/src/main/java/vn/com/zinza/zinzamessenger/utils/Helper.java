@@ -53,10 +53,22 @@ public class Helper {
 
     }
 
-    public static String getUrlDownload(String url) {
-        String mURl = url.substring(url.lastIndexOf("apis.com") + 8);
-        return mURl.substring(0, mURl.lastIndexOf("---"));
+    public static String convertDay(String time) {
+        SimpleDateFormat output = new SimpleDateFormat("dd/MM/yyyy");
+        SimpleDateFormat formatter = new SimpleDateFormat(Utils.FORMAT_TIME);
+        try {
+            Date parsed = formatter.parse(time);
+            return output.format(parsed);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return time;
     }
+    //Camera & galeery
+    public static String getUrlDownload(String url) {
+        return url.substring(url.lastIndexOf("apis.com") + 8);
+    }
+    //Video & File
     public static String getUrlStorageDownload(String url){
         return url.substring(0,url.lastIndexOf("---"));
     }
@@ -73,13 +85,12 @@ public class Helper {
     public static String getFullPart(String url){
         String fullPart= url.substring(url.lastIndexOf("+++")+3);
         return fullPart;
-    }
-    public static String getURLImage(String url) {
-        return url.substring(0, url.lastIndexOf("---"));
+
     }
 
+
     public static String getName(String url) {
-        return url.substring(url.lastIndexOf("---") + 3);
+        return url.substring(url.lastIndexOf("---") + 3,url.lastIndexOf("+++"));
     }
 
     public static void createDirectory() {
@@ -93,6 +104,21 @@ public class Helper {
             return ".jpg";
         } else if (url.contains(".mp3")) {
             return ".mp3";
+        }
+        else if (url.contains(".jpeg")) {
+            return ".jpeg";
+        }
+        else if (url.contains(".apk")){
+            return ".apk";
+        }
+        else if (url.contains(".txt")){
+            return ".txt";
+        }
+        else if (url.contains(".doc")){
+            return ".doc";
+        }
+        else if (url.contains(".bin")){
+            return ".doc";
         }
         return null;
     }

@@ -10,11 +10,13 @@ public class ResultData {
     private Intent mData;
     private String mKey;
     private String mType;
+    private int mStatus;
 
-    public ResultData(Intent mData, String mKey, String mType) {
+    public ResultData(Intent mData, String mKey, String mType, int mStatus) {
         this.mData = mData;
         this.mKey = mKey;
         this.mType = mType;
+        this.mStatus = mStatus;
     }
 
     public Intent getmData() {
@@ -39,5 +41,13 @@ public class ResultData {
 
     public void setmType(String mType) {
         this.mType = mType;
+    }
+
+    public int getmStatus() {
+        return mStatus;
+    }
+
+    public void setmStatus(int mStatus) {
+        this.mStatus = mStatus;
     }
 }

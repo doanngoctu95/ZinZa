@@ -38,67 +38,33 @@ public class DownloadThread implements Runnable {
     public DownloadThread(String url, String path) {
         this.urlTest = url;
         this.path = path;
-
     }
 
 
     @Override
-    public void run() {
-//        System.out.println("Starting : " + path);
-//        try {
-//            File file = new File(path);
-//
-//            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-//            urlConnection.setRequestProperty("Range", "Bytes=" + s + "-" + e);
-//            urlConnection.connect();
-//
-//            System.out.println("Respnse Code: " + urlConnection.getResponseCode());
-//            System.out.println("Content-Length: " + urlConnection.getContentLength());
-//
-//            InputStream inputStream = urlConnection.getInputStream();
-//            OutputStream out;
-//            out = new FileOutputStream(file);
-//            int o;
-//            while ((o = inputStream.read()) != -1) {
-//                out.write(o);
-//            }
-//            inputStream.close();
-//            out.close();
-//        } catch (MalformedURLException mue) {
-//            mue.printStackTrace();
-//        } catch (IOException ioe) {
-//            ioe.printStackTrace();
-//        }
-//        count++;
-//        done++;
-//        System.out.println("Part download is done");
+        public void run () {
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl(Utils.FIREBASE_DOWNLOAD)
+                    .build();
+
+            FirebaseService retrofitInterface = retrofit.create(FirebaseService.class);
 
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(Utils.FIREBASE_DOWNLOAD)
-                .build();
+            Call<ResponseBody> request = retrofitInterface.downloadAttachment(urlTest);//url
+            while (isRunning) {
 
-        FirebaseService retrofitInterface = retrofit.create(FirebaseService.class);
+                try {
 
+                    downloadFile(request.execute().body());
 
-        Call<ResponseBody> request = retrofitInterface.downloadAttachment(urlTest);//url
+                } catch (IOException e) {
 
-        while (isRunning) {
-
-            try {
-
-                downloadFile(request.execute().body());
-
-            } catch (IOException e) {
-
-                e.printStackTrace();
+                    e.printStackTrace();
 //            Toast.makeText(,e.getMessage(),Toast.LENGTH_SHORT).show();
 
+                }
             }
         }
-
-    }
-
     private void downloadFile(ResponseBody body) throws IOException {
 
 

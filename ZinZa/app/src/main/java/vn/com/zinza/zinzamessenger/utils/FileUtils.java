@@ -13,7 +13,9 @@ import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import vn.com.zinza.zinzamessenger.model.FileHistory;
 
@@ -37,7 +39,7 @@ public class FileUtils {
             fileInfo.setPathFileInStorage(path);
             fileInfo.setName(files[i].getName());
             fileInfo.setSize(files[i].length()+"");
-            fileInfo.setDate(files[i].lastModified()+"");
+            fileInfo.setDate(Helper.convertDay(new SimpleDateFormat(Utils.FORMAT_TIME).format(new Date(files[i].lastModified()))));
             fileList.add(fileInfo);
         }
         return fileList;
