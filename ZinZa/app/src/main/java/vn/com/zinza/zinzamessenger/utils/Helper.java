@@ -74,7 +74,7 @@ public class Helper {
     }
 
     public static String getName(String url) {
-        return url.substring(url.lastIndexOf("---") + 3);
+        return url.substring(url.lastIndexOf("---") + 3,url.lastIndexOf("+++"));
     }
 
     public static void createDirectory() {
@@ -88,6 +88,21 @@ public class Helper {
             return ".jpg";
         } else if (url.contains(".mp3")) {
             return ".mp3";
+        }
+        else if (url.contains(".jpeg")) {
+            return ".jpeg";
+        }
+        else if (url.contains(".apk")){
+            return ".apk";
+        }
+        else if (url.contains(".txt")){
+            return ".txt";
+        }
+        else if (url.contains(".doc")){
+            return ".doc";
+        }
+        else if (url.contains(".bin")){
+            return ".doc";
         }
         return null;
     }

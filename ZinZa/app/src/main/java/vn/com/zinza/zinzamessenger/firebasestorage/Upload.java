@@ -51,8 +51,7 @@ public class Upload implements Runnable {
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 Log.e("Upload","Success"+namePart);
                 String pos = namePart.substring(0,namePart.indexOf("."));
-                Utils.URL_PART += "Part"+pos+":"+taskSnapshot.getDownloadUrl().toString();
-
+                Utils.URL_PART += "Part"+pos+":"+taskSnapshot.getDownloadUrl().toString()+"*";
                 done = true;
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -64,6 +63,7 @@ public class Upload implements Runnable {
         while (!done){
 
         }
+
 
     }
 }

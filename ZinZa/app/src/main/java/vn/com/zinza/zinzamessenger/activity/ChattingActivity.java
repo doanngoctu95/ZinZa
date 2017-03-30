@@ -54,6 +54,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.security.auth.login.LoginException;
+
 import butterknife.ButterKnife;
 import hani.momanii.supernova_emoji_library.Actions.EmojIconActions;
 import hani.momanii.supernova_emoji_library.Helper.EmojiconEditText;
@@ -239,13 +241,6 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
                 break;
             case R.id.btnOpenAttachment:
                 openFileAttach();
-                mStorageReference.child("DKjNq5SEwEcQgrnCkSVuDFuIGF22-ePabOkREmHfx3R0dNjxjI2VHzAy1/files/60.bin").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                    @Override
-                    public void onSuccess(Uri uri) {
-                        Log.e("Uri",uri.toString());
-
-                    }
-                });
                 break;
             case R.id.optionChat:
                 showPopupOption(v);
@@ -303,10 +298,10 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
         mMsRef.child(keyConversation).child(mId).setValue(mMessage);
     }
 
-    private void sendMessageAttach(Uri uriContent, String type) {
-        String nameOfFile = Utils.NAME_FILE;
+    private void sendMessageAttach(String uriContent, String type) {
+
         String mId = mMsRef.push().getKey();
-        Message mMessage = new Message(mId, Utils.USER_ID, mIdRecipient, type, uriContent.toString() + "---" + nameOfFile, Utils.createAt());
+        Message mMessage = new Message(mId, Utils.USER_ID, mIdRecipient, type, uriContent, Utils.createAt());
         mAdapterMessageChat.addMessage(mMessage);
         mMsRef.child(keyConversation).child(mId).setValue(mMessage);
     }
@@ -481,7 +476,7 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 mProgressDialog.dismiss();
                 Uri url = taskSnapshot.getDownloadUrl();
-                sendMessageAttach(url, type);
+                sendMessageAttach(url+"---"+Utils.NAME_FILE+"+++"+Utils.URL_PART, type);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -522,7 +517,6 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void startUploadThread(final String typeOfFile, String keyConversation, String folderStorage, String fileName, String type) {
-
         File f1 = new File(Utils.ROOT_FOLDER + "/1" + typeOfFile);
         File f2 = new File(Utils.ROOT_FOLDER + "/2." + typeOfFile);
         File f3 = new File(Utils.ROOT_FOLDER + "/3." + typeOfFile);
@@ -568,9 +562,13 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
             if(f5.exists()){
                 f5.delete();
             }
+
             String link = keyConversation + "/" + folderStorage + "/" + fileName;
-            sendMessageAttach(Uri.parse(link), type);
-            Log.e("FULL-PART",Utils.URL_PART);
+            sendMessageAttach(link+"---"+Utils.NAME_FILE+"+++"+Utils.URL_PART, type);
+
+
+
+
         }
 
     }
@@ -606,6 +604,7 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
 
     private void setFirebaseInstance() {
         mMsRef = mMsDatabase.getInstance().getReference().child("tblChat");
+        mMsRef.keepSynced(true);
     }
 
     private void setFirebaseStorage() {

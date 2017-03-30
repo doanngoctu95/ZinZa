@@ -33,6 +33,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -85,14 +86,14 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
         this.mList = mList;
         registerReceiver();
         mStorageReference = FirebaseStorage.getInstance().getReference();
-        notificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-
-        notificationBuilder = new NotificationCompat.Builder(mContext)
-                .setSmallIcon(R.drawable.ic_action_download)
-                .setContentTitle("Download")
-                .setContentText("Downloading File")
-                .setAutoCancel(true);
-        notificationManager.notify(0, notificationBuilder.build());
+//        notificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+//
+//        notificationBuilder = new NotificationCompat.Builder(mContext)
+//                .setSmallIcon(R.drawable.ic_action_download)
+//                .setContentTitle("Download")
+//                .setContentText("Downloading File")
+//                .setAutoCancel(true);
+//        notificationManager.notify(0, notificationBuilder.build());
     }
 
     public void addMessage(Message message) {
@@ -270,9 +271,11 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
 //                        Utils.FIREBASE_END_URL = urlToDownload;
 //                        Utils.showToast("File đã bắt đầu được tải về", mContext);
 //                        startDownload();
-                       Utils.URL_DOWNLOAD = mList.get(position).getmContent();
+                        Utils.URL_DOWNLOAD = mList.get(position).getmContent();
 
-                        new DownLoadTask().execute(Utils.URL_DOWNLOAD);
+
+
+//                        new DownLoadTask().execute(Utils.URL_DOWNLOAD);
                     }
                 });
                 break;
@@ -284,7 +287,13 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         sendIntent(download);
 //        notificationBuilder.setProgress(100,download.getProgress(),false);
-        notificationBuilder.setContentText("Downloading file ");
+        notificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+//
+        notificationBuilder = new NotificationCompat.Builder(mContext)
+                .setSmallIcon(R.drawable.ic_action_download)
+                .setContentTitle("Download")
+                .setContentText("Downloading File")
+                .setAutoCancel(true);
         notificationManager.notify(0, notificationBuilder.build());
     }
 
@@ -293,14 +302,14 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
         private Exception exception;
 
         protected void onPreExecute() {
-            Download download = new Download();
-            sendNotification(download);
+
         }
 
         @Override
         protected String doInBackground(String... params) {
             // do above Server call here
-
+            Download download = new Download();
+            sendNotification(download);
             download(params[0]);
 
             return "some message";
@@ -317,94 +326,124 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     private void download(final String urlDow) {
         final long start = System.currentTimeMillis();
-        final String urlDown= Helper.getUrlStorageDownload(urlDow);
-        String url1=urlDown+"/1"+Helper.checkType(urlDown);
-        final String url2 =urlDown+"/2"+Helper.checkType(urlDown);
-        final String url3=urlDown+"/3"+Helper.checkType(urlDown);
-        final String url4=urlDown+"/4"+Helper.checkType(urlDown);
-        final String url5=urlDown+"/5"+Helper.checkType(urlDown);
+        final String urlDown = Helper.getUrlStorageDownload(urlDow);
+        String url1 = urlDown + "/1" + Helper.checkType(urlDown);
+        final String url2 = urlDown + "/2" + Helper.checkType(urlDown);
+        final String url3 = urlDown + "/3" + Helper.checkType(urlDown);
+        final String url4 = urlDown + "/4" + Helper.checkType(urlDown);
+        final String url5 = urlDown + "/5" + Helper.checkType(urlDown);
 
-        mStorageReference.child(url1).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-            @Override
-            public void onSuccess(Uri uri) {
-                Log.e("Uri", uri.toString());
-                Utils.URL_PART_1 = uri.toString();
-                mStorageReference.child(url2).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                    @Override
-                    public void onSuccess(Uri uri) {
-                        Log.e("Uri", uri.toString());
-                        Utils.URL_PART_2 = uri.toString();
-                        mStorageReference.child(url3).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                            @Override
-                            public void onSuccess(Uri uri) {
-                                Log.e("Uri", uri.toString());
-                                Utils.URL_PART_3 = uri.toString();
-                                mStorageReference.child(url4).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                    @Override
-                                    public void onSuccess(Uri uri) {
-                                        Log.e("Uri", uri.toString());
-                                        Utils.URL_PART_4 = uri.toString();
-                                        mStorageReference.child(url5).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                            @Override
-                                            public void onSuccess(Uri uri) {
-                                                Log.e("Uri", uri.toString());
-                                                Utils.URL_PART_5 = uri.toString();
-                                                DownloadThread d1 = new DownloadThread(Helper.getUrlFileDownload(Utils.URL_PART_1), Utils.ROOT_FOLDER + "/1");
-                                                DownloadThread d2 = new DownloadThread(Helper.getUrlFileDownload(Utils.URL_PART_2), Utils.ROOT_FOLDER + "/2");
-                                                DownloadThread d3 = new DownloadThread(Helper.getUrlFileDownload(Utils.URL_PART_3), Utils.ROOT_FOLDER + "/3");
-                                                DownloadThread d4 = new DownloadThread(Helper.getUrlFileDownload(Utils.URL_PART_4), Utils.ROOT_FOLDER + "/4");
-                                                DownloadThread d5 = new DownloadThread(Helper.getUrlFileDownload(Utils.URL_PART_5), Utils.ROOT_FOLDER + "/5");
+        DownloadThread d1 = new DownloadThread(url1, Utils.ROOT_FOLDER + "/1");
+        DownloadThread d2 = new DownloadThread(url2, Utils.ROOT_FOLDER + "/2");
+        DownloadThread d3 = new DownloadThread(url3, Utils.ROOT_FOLDER + "/3");
+        DownloadThread d4 = new DownloadThread(url4, Utils.ROOT_FOLDER + "/4");
+        DownloadThread d5 = new DownloadThread(url5, Utils.ROOT_FOLDER + "/5");
+        Thread t1 = new Thread(d1);
+        Thread t2 = new Thread(d2);
+        Thread t3 = new Thread(d3);
+        Thread t4 = new Thread(d4);
+        Thread t5 = new Thread(d5);
 
-                                                Thread t1 = new Thread(d1);
-                                                Thread t2 = new Thread(d2);
-                                                Thread t3 = new Thread(d3);
-                                                Thread t4 = new Thread(d4);
-                                                Thread t5 = new Thread(d5);
+        t1.start();
+        t2.start();
+        t3.start();
+        t4.start();
+        t5.start();
 
-                                                t1.start();
-                                                t2.start();
-                                                t3.start();
-                                                t4.start();
-                                                t5.start();
+        while ((d1.done + d2.done + d3.done + d4.done + d5.done) < 5) {
+            try {
+                Thread.sleep(100);
 
-                                                while ((d1.done + d2.done + d3.done + d4.done + d5.done) < 5) {
-                                                    try {
-                                                        Thread.sleep(100);
-                                                    } catch (InterruptedException e1) {
-                                                        e1.printStackTrace();
-                                                    }
-                                                }
-                                                String type= Helper.checkType(urlDown);
-                                                String name= Helper.getNameFile(urlDow);
-                                                Merge(name,type);
-                                                long end = System.currentTimeMillis();
-                                                System.out.println("Time Millis: " + (end - start) + " merge done");
-                                                onDownloadComplete();
-                                            }
-                                        });
-                                    }
-                                });
-                            }
-                        });
-                    }
-                });
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
             }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.e("fail", e.getMessage());
-            }
-        });
+        }
+        Log.e("URL-PART_Dowmload:",Utils.URL_PART);
+        String type = Helper.checkType(urlDown);
+        String name = Helper.getNameFile(urlDow);
+        Merge(name, type);
+        long end = System.currentTimeMillis();
+        System.out.println("Time Millis: " + (end - start) + " merge done");
+        onDownloadComplete();
 
-        Log.e("uri RDA",Utils.URL_PART_1+Utils.URL_PART_2+Utils.URL_PART_3+Utils.URL_PART_4+Utils.URL_PART_5);
-
-
-
-
-
-
-
-
+//        mStorageReference.child(url1).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+//            @Override
+//            public void onSuccess(Uri uri) {
+//                Log.e("Uri", uri.toString());
+//                Utils.URL_PART_1 = uri.toString();
+//                mStorageReference.child(url2).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+//                    @Override
+//                    public void onSuccess(Uri uri) {
+//                        Log.e("Uri", uri.toString());
+//                        Utils.URL_PART_2 = uri.toString();
+//                        mStorageReference.child(url3).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+//                            @Override
+//                            public void onSuccess(Uri uri) {
+//                                Log.e("Uri", uri.toString());
+//                                Utils.URL_PART_3 = uri.toString();
+//                                mStorageReference.child(url4).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+//                                    @Override
+//                                    public void onSuccess(Uri uri) {
+//                                        Log.e("Uri", uri.toString());
+//                                        Utils.URL_PART_4 = uri.toString();
+//                                        mStorageReference.child(url5).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+//                                            @Override
+//                                            public void onSuccess(Uri uri) {
+//                                                Log.e("Uri", uri.toString());
+//                                                Utils.URL_PART_5 = uri.toString();
+//                                                DownloadThread d1 = new DownloadThread(Helper.getUrlFileDownload(Utils.URL_PART_1), Utils.ROOT_FOLDER + "/1");
+//                                                DownloadThread d2 = new DownloadThread(Helper.getUrlFileDownload(Utils.URL_PART_2), Utils.ROOT_FOLDER + "/2");
+//                                                DownloadThread d3 = new DownloadThread(Helper.getUrlFileDownload(Utils.URL_PART_3), Utils.ROOT_FOLDER + "/3");
+//                                                DownloadThread d4 = new DownloadThread(Helper.getUrlFileDownload(Utils.URL_PART_4), Utils.ROOT_FOLDER + "/4");
+//                                                DownloadThread d5 = new DownloadThread(Helper.getUrlFileDownload(Utils.URL_PART_5), Utils.ROOT_FOLDER + "/5");
+//
+//                                                Thread t1 = new Thread(d1);
+//                                                Thread t2 = new Thread(d2);
+//                                                Thread t3 = new Thread(d3);
+//                                                Thread t4 = new Thread(d4);
+//                                                Thread t5 = new Thread(d5);
+//
+//                                                t1.start();
+//                                                t2.start();
+//                                                t3.start();
+//                                                t4.start();
+//                                                t5.start();
+//
+//                                                while ((d1.done + d2.done + d3.done + d4.done + d5.done) < 5) {
+//                                                    try {
+//                                                        Thread.sleep(100);
+//
+//                                                    } catch (InterruptedException e1) {
+//                                                        e1.printStackTrace();
+//                                                    }
+//                                                }
+////                                                t1.destroy();
+////                                                t2.destroy();
+////                                                t3.destroy();
+////                                                t4.destroy();
+////                                                t5.destroy();
+//                                                String type= Helper.checkType(urlDown);
+//                                                String name= Helper.getNameFile(urlDow);
+//                                                Merge(name,type);
+//                                                long end = System.currentTimeMillis();
+//                                                System.out.println("Time Millis: " + (end - start) + " merge done");
+//                                                onDownloadComplete();
+//                                            }
+//                                        });
+//                                    }
+//                                });
+//                            }
+//                        });
+//                    }
+//                });
+//            }
+//        }).addOnFailureListener(new OnFailureListener() {
+//            @Override
+//            public void onFailure(@NonNull Exception e) {
+//                Log.e("fail", e.getMessage());
+//            }
+//        });
+//        Log.e("uri RDA",Utils.URL_PART_1+Utils.URL_PART_2+Utils.URL_PART_3+Utils.URL_PART_4+Utils.URL_PART_5);
 
 
 //        String url1 = "/v0/b/zinza-4acc9.appspot.com/o/yaWteb938JOG7rJ3g4EpGIuwNCn2-zKfKfezloxgCdlKm7XmExCEzTup2%2Ffiles%2FMOV_0124.mp4?alt=media&token=a7ec5fa5-5ae2-4cd1-bf33-9a951defaa9b";
@@ -417,13 +456,13 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     }
 
-    public static void Merge(String nameFile,String type) {
+    public static void Merge(String nameFile, String type) {
         File file1 = new File(Utils.ROOT_FOLDER + "/1");
         File file2 = new File(Utils.ROOT_FOLDER + "/2");
         File file3 = new File(Utils.ROOT_FOLDER + "/3");
         File file4 = new File(Utils.ROOT_FOLDER + "/4");
         File file5 = new File(Utils.ROOT_FOLDER + "/5");
-        File oFile = new File(Utils.ROOT_FOLDER + "/"+nameFile+type);
+        File oFile = new File(Utils.ROOT_FOLDER + "/" + nameFile + type);
 
 
         try {

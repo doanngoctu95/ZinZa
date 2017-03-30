@@ -1,5 +1,11 @@
 package vn.com.zinza.zinzamessenger.downloadfirebase;
 
+import android.net.Uri;
+import android.util.Log;
+
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.squareup.okhttp.ResponseBody;
 
 import java.io.BufferedInputStream;
@@ -13,6 +19,7 @@ import java.net.URL;
 import retrofit.Call;
 import retrofit.Retrofit;
 import vn.com.zinza.zinzamessenger.service.FirebaseService;
+import vn.com.zinza.zinzamessenger.utils.Helper;
 import vn.com.zinza.zinzamessenger.utils.Utils;
 
 /**
@@ -27,6 +34,9 @@ public class DownloadThread implements Runnable {
 
     public int done = 0;
     String urlTest;
+    private boolean isRunning = true;
+    private StorageReference mStorageReference;
+    private String uriDown;
 
     public DownloadThread(URL url, String path, String s, String e) {
         this.url = url;
@@ -37,13 +47,17 @@ public class DownloadThread implements Runnable {
     public DownloadThread(String url, String path) {
         this.urlTest = url;
         this.path = path;
+        mStorageReference = FirebaseStorage.getInstance().getReference();
+
+
 
     }
 
 
 
-    @Override
-    public void run() {
+
+        @Override
+        public void run () {
 //        System.out.println("Starting : " + path);
 //        try {
 //            File file = new File(path);
@@ -73,29 +87,14 @@ public class DownloadThread implements Runnable {
 //        done++;
 //        System.out.println("Part download is done");
 
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(Utils.FIREBASE_DOWNLOAD)
-                .build();
-
-        FirebaseService retrofitInterface = retrofit.create(FirebaseService.class);
-
-
-        Call<ResponseBody> request = retrofitInterface.downloadAttachment(urlTest);//url
-
-
-        try {
-
-            downloadFile(request.execute().body());
-
-        } catch (IOException e) {
-
-            e.printStackTrace();
-//            Toast.makeText(,e.getMessage(),Toast.LENGTH_SHORT).show();
-
+            mStorageReference.child(this.urlTest).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                @Override
+                public void onSuccess(Uri uri) {
+                    Log.e("Uri", uri.toString());
+//                    Utils.URL_PART += uri.toString();
+                }
+            });
         }
-
-    }
 
     private void downloadFile(ResponseBody body) throws IOException {
 
@@ -128,6 +127,7 @@ public class DownloadThread implements Runnable {
 
             output.write(data, 0, count);
         }
+        isRunning = false;
         done++;
         output.flush();
         output.close();

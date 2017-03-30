@@ -101,18 +101,8 @@ public class AdapterHistoryFile  extends ArrayAdapter<FileHistory> {
         else if (typeFile.contains(".txt")){
             viewHolder.img.setImageDrawable(getContext().getResources().getDrawable(R.drawable.txt));
         }
-        else if (typeFile.contains(".jpg")||typeFile.contains(".png")){
-            Picasso.with(context)
-                    .load(arrFile.get(position).getPathFileInStorage())
-                    .resize(800, 800)
-                    .centerCrop()
-                    .into(viewHolder.img);
-        } else if (typeFile.contains(".jpg")||typeFile.contains(".png")){
-            Picasso.with(context)
-                    .load(arrFile.get(position).getPathFileInStorage())
-                    .resize(800, 800)
-                    .centerCrop()
-                    .into(viewHolder.img);
+        else if (typeFile.contains(".jpg")||typeFile.contains(".png")||typeFile.contains(".jpeg")){
+            viewHolder.img.setImageDrawable(getContext().getResources().getDrawable(R.drawable.jpg));
         }
         else {
             // other file
