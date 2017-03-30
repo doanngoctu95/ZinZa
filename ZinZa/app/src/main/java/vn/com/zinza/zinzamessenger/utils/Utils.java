@@ -75,6 +75,8 @@ public class Utils {
     public static String URL_DOWNLOAD="";
     //Upload multi
     public static String URL_PART = "";
+    public static String URL_CONTENT = "";
+
 
 
     public static AlertDialog buildAlertDialog(String title, String message, boolean isCancelable, Context context) {

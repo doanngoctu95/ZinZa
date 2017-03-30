@@ -66,8 +66,13 @@ public class Helper {
         return mURl;
     }
     public static String getNameFile(String url){
-        String mURl = url.substring(url.lastIndexOf("---")+3);
+        String mURl = url.substring(url.indexOf("---")+3,url.indexOf("+++"));
         return mURl;
+    }
+
+    public static String getFullPart(String url){
+        String fullPart= url.substring(url.lastIndexOf("+++")+3);
+        return fullPart;
     }
     public static String getURLImage(String url) {
         return url.substring(0, url.lastIndexOf("---"));

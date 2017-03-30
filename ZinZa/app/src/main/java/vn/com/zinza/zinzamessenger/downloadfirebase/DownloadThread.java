@@ -22,6 +22,7 @@ import vn.com.zinza.zinzamessenger.utils.Utils;
 public class DownloadThread implements Runnable {
     public static int count = 0;
     public static long start;
+    public boolean isRunning = true;
     URL url;
     String path;
 
@@ -39,7 +40,6 @@ public class DownloadThread implements Runnable {
         this.path = path;
 
     }
-
 
 
     @Override
@@ -83,21 +83,24 @@ public class DownloadThread implements Runnable {
 
         Call<ResponseBody> request = retrofitInterface.downloadAttachment(urlTest);//url
 
+        while (isRunning) {
 
-        try {
+            try {
 
-            downloadFile(request.execute().body());
+                downloadFile(request.execute().body());
 
-        } catch (IOException e) {
+            } catch (IOException e) {
 
-            e.printStackTrace();
+                e.printStackTrace();
 //            Toast.makeText(,e.getMessage(),Toast.LENGTH_SHORT).show();
 
+            }
         }
 
     }
 
     private void downloadFile(ResponseBody body) throws IOException {
+
 
         int count;
         byte data[] = new byte[1024 * 4];
@@ -111,6 +114,7 @@ public class DownloadThread implements Runnable {
         long total = 0;
         long startTime = System.currentTimeMillis();
         int timeCount = 1;
+
         while ((count = bis.read(data)) != -1) {
 
             total += count;
@@ -127,7 +131,10 @@ public class DownloadThread implements Runnable {
             }
 
             output.write(data, 0, count);
+
+
         }
+        isRunning = false;
         done++;
         output.flush();
         output.close();
