@@ -19,8 +19,6 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.squareup.picasso.Picasso;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -69,7 +67,6 @@ public class AdapterHistoryFile extends ArrayAdapter<FileHistory> {
             convertView.setTag(viewHolder);
         }
         viewHolder = (ViewHolder) convertView.getTag();
-//        viewHolder.img.setImageDrawable(getContext().getResources().getDrawable(arrFile.get(position).getImg()));
         viewHolder.tvDate.setText(arrFile.get(position).getDate());
         String typeFile = arrFile.get(position).getName();
         if (typeFile.toLowerCase().contains(".html")) {
@@ -154,7 +151,6 @@ public class AdapterHistoryFile extends ArrayAdapter<FileHistory> {
                                 return true;
                             }
                         });
-
                         break;
                     default:
                         break;
