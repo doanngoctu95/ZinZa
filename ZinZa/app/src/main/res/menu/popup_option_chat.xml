@@ -2,8 +2,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     <item
         android:id="@+id/changeColor"
-        android:title="Change chatting color" />
+        android:icon="@drawable/ic_color_picker"
+        android:title="Chane color" />
     <item
         android:id="@+id/option2"
-        android:title="Option " />
+        android:icon="@drawable/place_hoder"
+        android:title="Change image" />
 </menu>

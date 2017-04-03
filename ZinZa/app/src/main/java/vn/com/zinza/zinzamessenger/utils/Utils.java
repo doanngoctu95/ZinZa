@@ -13,6 +13,8 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import vn.com.zinza.zinzamessenger.R;
+
 import static com.facebook.FacebookSdk.getApplicationContext;
 
 /**
@@ -38,7 +40,9 @@ public class Utils {
     public static final String TBL_USERS= "users";
     public static final String TBL_FRIENDS= "tblFriend";
     public static final String TBL_CHATS= "tblChat";
-
+    public static final String TBL_COLOR = "tblColor";
+    //Folder
+    public static final String FOLDER_BG = "background-chat";
 
     //Current USER
     public static String USER_ID = "";
@@ -64,7 +68,7 @@ public class Utils {
     public static String RECIPIENT_ID = "RECIPIENT_ID";
     public static String URL_STREAMING="URL_STREAMING";
     // Color
-    public static boolean COLOR=false;
+    public static String COLOR = "FFFFFF";
 
     public static String URL_PATH_1="";
     public static String URL_PATH_2="";

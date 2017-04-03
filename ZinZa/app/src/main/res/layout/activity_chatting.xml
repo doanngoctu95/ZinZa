@@ -125,6 +125,7 @@
                 android:layout_toRightOf="@+id/btnEmotion"
                 android:background="@drawable/ic_action_attachment" />
 
+
         </RelativeLayout>
 
         <RelativeLayout

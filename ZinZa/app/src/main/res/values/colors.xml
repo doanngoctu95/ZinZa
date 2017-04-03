@@ -9,7 +9,7 @@
     <color name="colorNormal">#003380</color>
     <color name="senderColor">#2fec21</color>
     <color name="fbcolor">#3b5998</color>
-    <color name="gray">#787676</color>
+    <color name="gray">#EEEEEE</color>
     <color name="red">#FF0000</color>
     <color name="normal">#757575</color>
     <color name="pressed">#3F51B5</color>
@@ -18,4 +18,27 @@
     <color name="page2">#20d2bb</color>
     <color name="page3">#3395ff</color>
     <color name="page4">#c873f4</color>
+
+    <color name="bright_pink">#FF007F</color>
+    <color name="orange">#FF7F00</color>
+    <color name="yellow">#FFFF00</color>
+    <color name="green">#00FF00</color>
+    <color name="cyan">#00FFFF</color>
+    <color name="azure">#007FFF</color>
+    <color name="blue">#0000FF</color>
+    <color name="violet">#7F00FF</color>
+    <color name="magenta">#FF00FF</color>
+
+    <array name="rainbow">
+        <item>@color/bright_pink</item>
+        <item>@color/red</item>
+        <item>@color/orange</item>
+        <item>@color/yellow</item>
+        <item>@color/green</item>
+        <item>@color/cyan</item>
+        <item>@color/azure</item>
+        <item>@color/blue</item>
+        <item>@color/violet</item>
+        <item>@color/magenta</item>
+    </array>
 </resources>

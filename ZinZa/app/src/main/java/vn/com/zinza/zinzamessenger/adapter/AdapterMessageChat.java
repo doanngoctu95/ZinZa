@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
@@ -16,19 +17,21 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -40,7 +43,6 @@ import hani.momanii.supernova_emoji_library.Helper.EmojiconTextView;
 import me.himanshusoni.chatmessageview.ChatMessageView;
 import vn.com.zinza.zinzamessenger.R;
 import vn.com.zinza.zinzamessenger.activity.ChattingActivity;
-import vn.com.zinza.zinzamessenger.activity.VideoViewActivity;
 import vn.com.zinza.zinzamessenger.downloadfirebase.DownloadThread;
 import vn.com.zinza.zinzamessenger.firebasestorage.Download;
 import vn.com.zinza.zinzamessenger.firebasestorage.DownloadService;
@@ -72,10 +74,12 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
     private List<Message> mList;
     private int mLayout;
     private StorageReference mStorageReference;
+    private DatabaseReference mRefColor;
 
     private ProgressDialog mProgressDialog;
     private NotificationCompat.Builder notificationBuilder;
     private NotificationManager notificationManager;
+    private String color;
 
     public AdapterMessageChat(Context mContext, List<Message> mList) {
         this.mContext = mContext;
@@ -83,12 +87,14 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
         registerReceiver();
         mStorageReference = FirebaseStorage.getInstance().getReference();
     }
-
     public void addMessage(Message message) {
         mList.add(message);
-        notifyItemInserted(getItemCount()-1);
+        notifyItemInserted(getItemCount() - 1);
     }
-
+    public void changeColor(String color){
+        this.color = color;
+        notifyDataSetChanged();
+    }
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         RecyclerView.ViewHolder viewHolder;
@@ -481,6 +487,8 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
         Message senderFireMessage = mList.get(position);
         viewHolderSender.getSenderContent().setText(senderFireMessage.getmContent());
         viewHolderSender.getTime().setText(Helper.convertTime(senderFireMessage.getmTime()));
+
+
     }
 
     private void configureImageSenderView(ViewHolderSenderImage viewHolderSenderImage, final int position) {
@@ -528,6 +536,7 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
                 .into(viewHolderRecipientImage.getRecipientImage());
         viewHolderRecipientImage.getTime().setText(Helper.convertTime(senderFireMessage.getmTime()));
     }
+
     private void configureFileRecipient(ViewHolderRecipientFile viewHolderRecipientFile, final int position) {
         Message senderFireMessage = mList.get(position);
         viewHolderRecipientFile.getRecipientFile().setText(Helper.getNameFile(senderFireMessage.getmContent()));
@@ -542,11 +551,17 @@ public class AdapterMessageChat extends RecyclerView.Adapter<RecyclerView.ViewHo
     public class ViewHolderSenderText extends RecyclerView.ViewHolder {
         EmojiconTextView content;
         TextView time;
+        ChatMessageView view;
 
         public ViewHolderSenderText(View itemView) {
             super(itemView);
             content = (EmojiconTextView) itemView.findViewById(R.id.text_view_sender_message);
             time = (TextView) itemView.findViewById(R.id.text_view_time_sender);
+            view = (ChatMessageView) itemView.findViewById(R.id.contentMessageChat);
+        }
+
+        public ChatMessageView getChatView() {
+            return view;
         }
 
         public EmojiconTextView getSenderContent() {

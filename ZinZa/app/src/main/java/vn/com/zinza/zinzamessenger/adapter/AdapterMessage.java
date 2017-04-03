@@ -174,6 +174,7 @@ public class AdapterMessage extends BaseAdapter {
                             chatting.putExtra(Utils.FR_USER, user);
                             chatting.putExtra(Utils.SENDER_ID, Utils.USER_ID);
                             chatting.putExtra(Utils.RECIPIENT_ID, user.getmId());
+
                             mContext.startActivity(chatting);
                         }
                     });

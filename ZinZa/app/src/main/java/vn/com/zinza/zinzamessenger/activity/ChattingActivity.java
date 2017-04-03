@@ -2,21 +2,27 @@ package vn.com.zinza.zinzamessenger.activity;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -25,9 +31,12 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -46,11 +55,16 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
+import com.thebluealliance.spectrum.SpectrumDialog;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,7 +73,10 @@ import javax.security.auth.login.LoginException;
 import butterknife.ButterKnife;
 import hani.momanii.supernova_emoji_library.Actions.EmojIconActions;
 import hani.momanii.supernova_emoji_library.Helper.EmojiconEditText;
+import jp.wasabeef.blurry.Blurry;
 import vn.com.zinza.zinzamessenger.R;
+import vn.com.zinza.zinzamessenger.adapter.AdapterChangeBG;
+import vn.com.zinza.zinzamessenger.adapter.AdapterFriendSearch;
 import vn.com.zinza.zinzamessenger.adapter.AdapterMessage;
 import vn.com.zinza.zinzamessenger.adapter.AdapterMessageChat;
 import vn.com.zinza.zinzamessenger.firebasestorage.Upload;
@@ -69,6 +86,8 @@ import vn.com.zinza.zinzamessenger.model.User;
 import vn.com.zinza.zinzamessenger.utils.Helper;
 import vn.com.zinza.zinzamessenger.utils.RealPathUtils;
 import vn.com.zinza.zinzamessenger.utils.Utils;
+
+import static vn.com.zinza.zinzamessenger.R.id.imageView;
 
 public class ChattingActivity extends AppCompatActivity implements View.OnClickListener {
     private ImageButton mBtnBack;
@@ -93,14 +112,21 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
     private EmojIconActions mEmojIcon;
     private ImageView mBtEmoji;
     private View contentRoot;
+    //ChangeBG
+    private Dialog mDialogChangeBG;
+    private GridView mGridviewChangeBG;
+    private int [] resIDs = {R.drawable.bg_1,R.drawable.bg_2,R.drawable.bg_3,R.drawable.bg_4};
+    private AdapterChangeBG mAdapterChangeBG;
 
     private FirebaseDatabase mMsDatabase;
     private DatabaseReference mMsRef;
+    private DatabaseReference mRefColor;
     private ChildEventListener messageChatListener;
 
     private ProgressDialog mProgressDialog;
     private static final int REQUEST_CAMERA = 1;
     private static final int REQUEST_GALLERY = 2;
+    private static final int REQUEST_CHANGE_BACKGROUND = 3;
 
 
     private FirebaseStorage mFirebaseStorage;
@@ -177,6 +203,7 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
         mBtnOpenAttach.setOnClickListener(this);
         mBtnOption.setOnClickListener(this);
         mBtnText.setOnClickListener(this);
+
     }
 
     private void bindButterKnife() {
@@ -262,11 +289,10 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.changeColor:
-//                        Utils.COLOR=true;
-                        Toast.makeText(getApplicationContext(), "Dang xay dung", Toast.LENGTH_SHORT).show();
+                        openColorPicker();
                         break;
                     case R.id.option2:
-                        Toast.makeText(getApplicationContext(), "dang xay dung", Toast.LENGTH_SHORT).show();
+                        changeBackground();
                         break;
                     default:
                         break;
@@ -283,7 +309,47 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
         intent.setType("*/*");
         startActivityForResult(intent, RESULT_OPEN_ATTACH);
     }
+    private void openColorPicker(){
+       SpectrumDialog spectrumDialog =  new SpectrumDialog.Builder(getApplicationContext())
+                .setColors(R.array.rainbow)
+                .setSelectedColorRes(R.color.green)
+                .setDismissOnColorSelected(true)
+                .setOutlineWidth(2)
+                .setOnColorSelectedListener(new SpectrumDialog.OnColorSelectedListener() {
+                    @Override public void onColorSelected(boolean positiveResult, @ColorInt int color) {
+                        if (positiveResult) {
+                            Toast.makeText(getApplicationContext(), "Color selected: #" + Integer.toHexString(color).toUpperCase(), Toast.LENGTH_SHORT).show();
+                            mRefColor.child(Utils.TBL_COLOR).child(keyConversation).child("background").removeValue();
+                            mRefColor.child(Utils.TBL_COLOR).child(keyConversation).child("color").setValue(Integer.toHexString(color).toUpperCase());
+                            Utils.COLOR = Integer.toHexString(color).toUpperCase();
+                            mListview.setBackgroundColor(color);
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Dialog cancelled", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    }).build();
+        spectrumDialog.show(getSupportFragmentManager(),"dialog");
+    }
+    private void changeBackground(){
+        mDialogChangeBG = new Dialog(this, android.R.style.Theme_DeviceDefault_Light_Dialog_NoActionBar);
+        mDialogChangeBG.setContentView(R.layout.dialog_change_bg);
+        mDialogChangeBG.show();
+        mDialogChangeBG.setCancelable(true);
+        mGridviewChangeBG = (GridView) mDialogChangeBG.findViewById(R.id.lstBackground);
+        mAdapterChangeBG = new AdapterChangeBG(this, R.layout.item_change_bg, resIDs);
+        mGridviewChangeBG.setAdapter(mAdapterChangeBG);
+        mGridviewChangeBG.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                mListview.setBackgroundResource(resIDs[position]);
+                mDialogChangeBG.dismiss();
+                mRefColor.child(Utils.TBL_COLOR).child(keyConversation).child("color").removeValue();
+                mRefColor.child(Utils.TBL_COLOR).child(keyConversation).child("background").setValue(String.valueOf(resIDs[position]));
+            }
+        });
 
+
+    }
     private void setListview() {
         mListview.setLayoutManager(new LinearLayoutManager(this));
         mListview.setHasFixedSize(true);
@@ -353,6 +419,7 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
                     }
 
                     mAdapterMessageChat.addMessage(message);
+                    mAdapterMessageChat.changeColor(Utils.COLOR);
                     mListview.scrollToPosition(mAdapterMessageChat.getItemCount() - 1);
                 }
             }
@@ -394,7 +461,9 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
                 } else {
                     keyConversation = kcv2;
                 }
+                getColor(keyConversation);
                 getMessage();
+
             }
 
             @Override
@@ -403,6 +472,31 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
             }
         });
     }
+    private void getColor(String keyConversation){
+        mRefColor = FirebaseDatabase.getInstance().getReference();
+        mRefColor.child(Utils.TBL_COLOR).child(keyConversation).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.child("color").exists()) {
+                    Utils.COLOR = (String) dataSnapshot.child("color").getValue().toString();
+                    mListview.setBackgroundColor(Color.parseColor("#"+Utils.COLOR));
+                    Log.e("Util color", Utils.COLOR);
+                } else if(dataSnapshot.child("background").exists()){
+                    String resId = (String) dataSnapshot.child("background").getValue().toString();
+                    mListview.setBackgroundResource(Integer.parseInt(resId));
+                } else {
+
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
 
     private void openCamera() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
@@ -603,6 +697,7 @@ public class ChattingActivity extends AppCompatActivity implements View.OnClickL
 
     private void setFirebaseInstance() {
         mMsRef = mMsDatabase.getInstance().getReference().child(Utils.TBL_CHATS);
+        mRefColor = FirebaseDatabase.getInstance().getReference();
         mMsRef.keepSynced(true);
     }
 

@@ -56,6 +56,10 @@ dependencies {
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.4.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile "com.daimajia.swipelayout:library:1.2.0@aar"
+    //Color picker
+    compile 'com.thebluealliance:spectrum:0.7.1'
+    //Blur image
+    compile 'jp.wasabeef:blurry:2.1.1'
 
 }
 apply plugin: 'com.google.gms.google-services'
